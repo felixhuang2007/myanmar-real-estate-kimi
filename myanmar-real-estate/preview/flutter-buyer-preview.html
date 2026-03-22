@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>缅甸房产平台 - C端APP预览</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5; 
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        .phone {
+            width: 375px;
+            height: 812px;
+            background: #fff;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+            border: 12px solid #1a1a1a;
+        }
+        .screen {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background: linear-gradient(180deg, #fff9e6 0%, #fff 30%);
+        }
+        .status-bar {
+            height: 44px;
+            background: #B8860B;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .header {
+            background: linear-gradient(135deg, #B8860B 0%, #DAA520 100%);
+            padding: 15px 20px;
+            color: white;
+        }
+        .location {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .search-bar {
+            background: rgba(255,255,255,0.9);
+            border-radius: 25px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        .banner {
+            margin: 15px;
+            height: 140px;
+            background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(184,134,11,0.3);
+        }
+        .quick-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: white;
+            margin: 0 15px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .action-icon.buy { background: #e8f5e9; }
+        .action-icon.rent { background: #e3f2fd; }
+        .action-icon.map { background: #fff3e0; }
+        .action-icon.agent { background: #f3e5f5; }
+        .action-text {
+            font-size: 12px;
+            color: #333;
+            font-weight: 500;
+        }
+        .section-title {
+            padding: 20px 15px 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-title a {
+            font-size: 14px;
+            color: #B8860B;
+            text-decoration: none;
+        }
+        .house-list {
+            padding: 0 15px;
+        }
+        .house-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .house-image {
+            height: 180px;
+            background: linear-gradient(135deg, #ddd 0%, #eee 100%);
+            position: relative;
+        }
+        .verified-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #4CAF50;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .house-info {
+            padding: 15px;
+        }
+        .house-price {
+            font-size: 22px;
+            font-weight: bold;
+            color: #e53935;
+            margin-bottom: 8px;
+        }
+        .house-price span {
+            font-size: 14px;
+            font-weight: normal;
+            color: #666;
+        }
+        .house-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .house-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .tag {
+            background: #f5f5f5;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+        .house-location {
+            font-size: 13px;
+            color: #999;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #B8860B;
+        }
+        .nav-item span:first-child {
+            font-size: 24px;
+        }
+        .nav-item span:last-child {
+            font-size: 11px;
+        }
+        .nav-item.active {
+            color: #B8860B;
+        }
+        .nav-item:not(.active) {
+            color: #999;
+        }
+        .page-title {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <p class="page-title">🇲🇲 缅甸房产平台 - C端APP (Flutter) UX预览</p>
+
+    <!-- 首页 -->
+    <div class="phone">
+        <div class="screen">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 🔋</span>
+            </div>
+            <div class="header">
+                <div class="location">
+                    📍 仰光 ▼
+                </div>
+                <div class="search-bar">
+                    🔍 搜索小区、商圈、地铁站...
+                </div>
+            </div>
+            
+            <div class="banner">
+                🏠 缅甸真实房源平台
+                <br>
+                <small>已验真房源 2,580 套</small>
+            </div>
+            
+            <div class="quick-actions">
+                <div class="action-item">
+                    <div class="action-icon buy">🏠</div>
+                    <span class="action-text">买房</span>
+                </div>
+                <div class="action-item">
+                    <div class="action-icon rent">🔑</div>
+                    <span class="action-text">租房</span>
+                </div>
+                <div class="action-item">
+                    <div class="action-icon map">🗺️</div>
+                    <span class="action-text">地图找房</span>
+                </div>
+                <div class="action-item">
+                    <div class="action-icon agent">👨‍💼</div>
+                    <span class="action-text">找经纪人</span>
+                </div>
+            </div>
+            
+            <div class="section-title">
+                精选房源
+                <a href="#">更多 ></a>
+            </div>
+            
+            <div class="house-list">
+                <div class="house-card">
+                    <div class="house-image">
+                        <span class="verified-badge">✓ 已验真</span>
+                    </div>
+                    <div class="house-info">
+                        <div class="house-price">4.5亿 MMK <span>约￥150万</span></div>
+                        <div class="house-title">仰光市中心豪华公寓 3室2厅</div>
+                        <div class="house-tags">
+                            <span class="tag">3室2厅</span>
+                            <span class="tag">120㎡</span>
+                            <span class="tag">南向</span>
+                        </div>
+                        <div class="house-location">
+                            📍 仰光 · 班莱镇区 · 距离地铁站500m
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="house-card">
+                    <div class="house-image">
+                        <span class="verified-badge">✓ 已验真</span>
+                    </div>
+                    <div class="house-info">
+                        <div class="house-price">2.8亿 MMK <span>约￥93万</span></div>
+                        <div class="house-title">曼德勒新城别墅 4室3厅带花园</div>
+                        <div class="house-tags">
+                            <span class="tag">4室3厅</span>
+                            <span class="tag">200㎡</span>
+                            <span class="tag">精装</span>
+                        </div>
+                        <div class="house-location">
+                            📍 曼德勒 · 新城开发区
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="height: 100px;"></div>
+            
+            <div class="bottom-nav">
+                <div class="nav-item active">
+                    <span>🏠</span>
+                    <span>首页</span>
+                </div>
+                <div class="nav-item">
+                    <span>🗺️</span>
+                    <span>找房</span>
+                </div>
+                <div class="nav-item">
+                    <span>💬</span>
+                    <span>消息</span>
+                </div>
+                <div class="nav-item">
+                    <span>👤</span>
+                    <span>我的</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 房源详情页 -->
+    <div class="phone">
+        <div class="screen" style="background: #fff;">
+            <div class="status-bar" style="background: transparent; color: #333; position: absolute; z-index: 10;">
+                <span>9:41</span>
+                <span>📶 🔋</span>
+            </div>
+            
+            <div style="height: 300px; background: linear-gradient(135deg, #ddd 0%, #eee 100%); position: relative;">
+                <div style="position: absolute; top: 50px; left: 15px; background: rgba(0,0,0,0.5); color: white; padding: 8px 12px; border-radius: 20px;">← 返回</div>
+                <div style="position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; padding: 6px 12px; border-radius: 15px; font-size: 13px;">1/12</div>
+                
+                <div style="position: absolute; top: 50px; right: 15px; background: #4CAF50; color: white; padding: 6px 12px; border-radius: 15px; font-size: 13px;">✓ 已验真</div>
+            </div>
+            
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                    <div style="font-size: 28px; font-weight: bold; color: #e53935;">4.5亿 MMK</div>
+                    <div style="background: #B8860B; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px;">出售</div>
+                </div>
+                
+                <div style="font-size: 20px; font-weight: bold; color: #333; margin-bottom: 15px;">仰光市中心豪华公寓 3室2厅 近地铁站</div>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 12px;">
+                    <div style="flex: 1; text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #333;">3室2厅</div>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">户型</div>
+                    </div>
+                    <div style="flex: 1; text-align: center; border-left: 1px solid #eee; border-right: 1px solid #eee;">
+                        <div style="font-size: 20px; font-weight: bold; color: #333;">120㎡</div>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">面积</div>
+                    </div>
+                    <div style="flex: 1; text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #333;">南向</div>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">朝向</div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 10px;">房源信息</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px; color: #666;">
+                        <div>楼层: 15/25层</div>
+                        <div>装修: 精装修</div>
+                        <div>年代: 2020年</div>
+                        <div>类型: 普通住宅</div>
+                    </div>
+                </div>
+                
+                <div style="background: #f0f8ff; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <div style="width: 40px; height: 40px; background: #B8860B; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">张</div>
+                        <div>
+                            <div style="font-weight: bold;">张经纪</div>
+                            <div style="font-size: 12px; color: #666;">仰光金牌经纪人 | 带看 128 次</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 70px; background: white; border-top: 1px solid #eee; display: flex; align-items: center; padding: 0 15px; gap: 10px;">
+                <div style="display: flex; flex-direction: column; align-items: center; padding: 0 15px;">
+                    <span style="font-size: 20px;">⭐</span>
+                    <span style="font-size: 11px; color: #666;">收藏</span>
+                </div>
+                <div style="flex: 1; background: #B8860B; color: white; padding: 12px; border-radius: 25px; text-align: center; font-weight: bold;">在线咨询</div>
+                <div style="flex: 1; background: #e53935; color: white; padding: 12px; border-radius: 25px; text-align: center; font-weight: bold;">预约带看</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索页 -->
+    <div class="phone">
+        <div class="screen" style="background: #fff;">
+            <div class="status-bar" style="background: white; color: #333; border-bottom: 1px solid #eee;">
+                <span>9:41</span>
+                <span>📶 🔋</span>
+            </div>
+            
+            <div style="padding: 15px; background: white; border-bottom: 1px solid #eee;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="color: #666;">←</span>
+                    <div style="flex: 1; background: #f5f5f5; padding: 10px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px;">
+                        🔍 <input type="text" placeholder="请输入小区或商圈名称" style="border: none; background: transparent; outline: none; width: 100%;">
+                    </div>
+                    <span style="color: #B8860B; font-weight: bold;">搜索</span>
+                </div>
+            </div>
+            
+            <div style="padding: 20px;">
+                <div style="margin-bottom: 25px;">
+                    <div style="font-size: 14px; color: #999; margin-bottom: 12px;">历史搜索</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <span style="background: #f5f5f5; padding: 8px 15px; border-radius: 15px; font-size: 13px; color: #666;">仰光市中心</span>
+                        <span style="background: #f5f5f5; padding: 8px 15px; border-radius: 15px; font-size: 13px; color: #666;">3室2厅</span>
+                        <span style="background: #f5f5f5; padding: 8px 15px; border-radius: 15px; font-size: 13px; color: #666;">曼德勒</span>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <div style="font-size: 14px; color: #999; margin-bottom: 12px;">热门搜索</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <span style="background: #fff9e6; padding: 8px 15px; border-radius: 15px; font-size: 13px; color: #B8860B;">🔥 班莱镇区</span>
+                        <span style="background: #fff9e6; padding: 8px 15px; border-radius: 15px; font-size: 13px; color: #B8860B;">🔥 豪华公寓</span>
+                        <span style="background: #fff9e6; padding: 8px 15px; border-radius: 15px; font-size: 13px; color: #B8860B;">🔥 近地铁站</span>
+                        <span style="background: #fff9e6; padding: 8px 15px; border-radius: 15px; font-size: 13px; color: #B8860B;">🔥 别墅</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="font-size: 14px; color: #999; margin-bottom: 12px;">筛选条件</div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 13px; color: #333; margin-bottom: 8px;">价格区间</div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <span style="border: 1px solid #ddd; padding: 6px 12px; border-radius: 15px; font-size: 12px;">不限</span>
+                            <span style="border: 1px solid #B8860B; background: #fff9e6; color: #B8860B; padding: 6px 12px; border-radius: 15px; font-size: 12px;">50万以下</span>
+                            <span style="border: 1px solid #ddd; padding: 6px 12px; border-radius: 15px; font-size: 12px;">50-100万</span>
+                            <span style="border: 1px solid #ddd; padding: 6px 12px; border-radius: 15px; font-size: 12px;">100-200万</span>
+                            <span style="border: 1px solid #ddd; padding: 6px 12px; border-radius: 15px; font-size: 12px;">200万以上</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 13px; color: #333; margin-bottom: 8px;">户型</div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <span style="border: 1px solid #ddd; padding: 6px 12px; border-radius: 15px; font-size: 12px;">不限</span>
+                            <span style="border: 1px solid #ddd; padding: 6px 12px; border-radius: 15px; font-size: 12px;">一室</span>
+                            <span style="border: 1px solid #B8860B; background: #fff9e6; color: #B8860B; padding: 6px 12px; border-radius: 15px; font-size: 12px;">二室</span>
+                            <span style="border: 1px solid #ddd; padding: 6px 12px; border-radius: 15px; font-size: 12px;">三室</span>
+                            <span style="border: 1px solid #ddd; padding: 6px 12px; border-radius: 15px; font-size: 12px;">四室+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        㱽iv>
+    </div>
+
+</body>
+</html>

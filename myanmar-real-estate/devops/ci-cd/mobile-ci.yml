@@ -1,0 +1,291 @@
+name: Mobile App CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'mobile/**'
+
+env:
+  NODE_VERSION: '20'
+  FLUTTER_VERSION: '3.16.x'
+
+jobs:
+  # ============================================
+  # 阶段1: 代码检查
+  # ============================================
+  lint:
+    name: Code Lint & Analysis
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./mobile
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze --fatal-infos
+
+      - name: Check code format
+        run: dart format --set-exit-if-changed .
+
+  # ============================================
+  # 阶段2: 单元测试
+  # ============================================
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    defaults:
+      run:
+        working-directory: ./mobile
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run unit tests
+        run: flutter test --coverage
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./mobile/coverage/lcov.info
+          flags: mobile
+          name: mobile-coverage
+
+  # ============================================
+  # 阶段3: Android 构建
+  # ============================================
+  build-android:
+    name: Build Android APK/AAB
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push'
+    defaults:
+      run:
+        working-directory: ./mobile
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 开发环境构建
+      - name: Build Android APK (Dev)
+        if: github.ref == 'refs/heads/develop'
+        run: flutter build apk --flavor dev --debug
+        env:
+          API_BASE_URL: ${{ secrets.DEV_API_URL }}
+
+      # 生产环境构建
+      - name: Build Android AAB (Production)
+        if: github.ref == 'refs/heads/main'
+        run: flutter build appbundle --flavor prod --release
+        env:
+          API_BASE_URL: ${{ secrets.PROD_API_URL }}
+
+      - name: Sign Android AAB
+        if: github.ref == 'refs/heads/main'
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: mobile/build/app/outputs/bundle/prodRelease
+          signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
+          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: |
+            mobile/build/app/outputs/flutter-apk/*.apk
+            mobile/build/app/outputs/bundle/*/*.aab
+          retention-days: 7
+
+  # ============================================
+  # 阶段4: iOS 构建 (需要 macOS Runner)
+  # ============================================
+  build-ios:
+    name: Build iOS (Manual Trigger)
+    runs-on: macos-latest
+    needs: test
+    # iOS 构建需要证书和配置文件，建议手动触发
+    if: github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        working-directory: ./mobile
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install --repo-update
+
+      # 安装证书和配置文件
+      - name: Install Apple Certificate
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.IOS_P12_BASE64 }}
+          p12-password: ${{ secrets.IOS_P12_PASSWORD }}
+
+      - name: Install Provisioning Profile
+        uses: apple-actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: com.myanmarestate.app
+          profile-type: 'IOS_APP_STORE'
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+
+      - name: Build iOS
+        run: flutter build ipa --release
+
+      - name: Upload to App Store Connect
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          app-path: mobile/build/ios/ipa/*.ipa
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+
+  # ============================================
+  # 阶段5: 发布到 Firebase App Distribution (测试)
+  # ============================================
+  deploy-firebase:
+    name: Deploy to Firebase App Distribution
+    runs-on: ubuntu-latest
+    needs: build-android
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Download Android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-build
+          path: ./build
+
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          groups: testers
+          file: build/flutter-apk/app-dev-debug.apk
+          releaseNotes: |
+            Commit: ${{ github.sha }}
+            Branch: ${{ github.ref_name }}
+            By: ${{ github.actor }}
+
+  # ============================================
+  # 阶段6: 发布到 Google Play (生产)
+  # ============================================
+  deploy-play-store:
+    name: Deploy to Google Play
+    runs-on: ubuntu-latest
+    needs: build-android
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+
+    steps:
+      - name: Download Android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-build
+          path: ./build
+
+      - name: Upload to Google Play (Internal Testing)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          packageName: com.myanmarestate.app
+          releaseFiles: build/bundle/prodRelease/*.aab
+          track: internal
+          status: completed
+          whatsNewDirectory: mobile/fastlane/metadata/android/en-US/changelogs
+
+  # ============================================
+  # 阶段7: 上传符号表和 Source Maps
+  # ============================================
+  upload-symbols:
+    name: Upload Debug Symbols
+    runs-on: ubuntu-latest
+    needs: [build-android]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: |
+          cd mobile
+          flutter pub get
+
+      # 上传符号表到 Firebase Crashlytics
+      - name: Upload symbols to Crashlytics
+        run: |
+          cd mobile
+          flutter build apk --release
+          # 上传符号表的命令需要根据实际配置调整
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}

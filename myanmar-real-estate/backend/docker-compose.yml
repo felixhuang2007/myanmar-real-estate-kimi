@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # PostgreSQL数据库
+  postgres:
+    image: postgres:15-alpine
+    container_name: myanmar-property-db
+    environment:
+      POSTGRES_USER: myanmar_property
+      POSTGRES_PASSWORD: myanmar_property_2024
+      POSTGRES_DB: myanmar_property
+      TZ: Asia/Yangon
+      PGTZ: Asia/Yangon
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./01-database-schema.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - myanmar-property-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myanmar_property"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: myanmar-property-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - myanmar-property-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Elasticsearch搜索
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: myanmar-property-es
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - myanmar-property-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # 后端API服务
+  api:
+    build:
+      context: .
+      dockerfile: 08-Dockerfile
+    container_name: myanmar-property-api
+    environment:
+      - MYANMAR_PROPERTY_ENVIRONMENT=development
+      - MYANMAR_PROPERTY_SERVER_PORT=8080
+      - MYANMAR_PROPERTY_DATABASE_HOST=postgres
+      - MYANMAR_PROPERTY_DATABASE_PORT=5432
+      - MYANMAR_PROPERTY_DATABASE_USER=myanmar_property
+      - MYANMAR_PROPERTY_DATABASE_PASSWORD=myanmar_property_2024
+      - MYANMAR_PROPERTY_DATABASE_DATABASE=myanmar_property
+      - MYANMAR_PROPERTY_REDIS_HOST=redis
+      - MYANMAR_PROPERTY_REDIS_PORT=6379
+      - MYANMAR_PROPERTY_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - MYANMAR_PROPERTY_JWT_SECRET=myanmar_property_jwt_secret_key_2024_change_in_production
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - myanmar-property-network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+
+volumes:
+  postgres_data:
+  redis_data:
+  es_data:
+
+networks:
+  myanmar-property-network:
+    driver: bridge

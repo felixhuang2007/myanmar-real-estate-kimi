@@ -1,0 +1,67 @@
+environment: development
+debug: true
+
+server:
+  host: 0.0.0.0
+  port: 8080
+  read_timeout: 30s
+  write_timeout: 30s
+
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: test123
+  database: myanmarhome
+  ssl_mode: disable
+  max_open_conns: 25
+  max_idle_conns: 5
+  conn_max_lifetime: 30m
+
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  database: 0
+  pool_size: 10
+  min_idle_conns: 5
+
+elasticsearch:
+  hosts:
+    - http://localhost:9200
+  username: ""
+  password: ""
+
+jwt:
+  secret: myanmar_property_jwt_secret_key_2024_change_in_production
+  access_token_ttl: 24h
+  refresh_token_ttl: 720h
+
+sms:
+  provider: twilio
+  access_key: ""
+  secret_key: ""
+  sign_name: "MyanmarProperty"
+
+storage:
+  type: s3
+  endpoint: ""
+  access_key: ""
+  secret_key: ""
+  bucket: myanmar-property
+  region: ap-southeast-1
+  cdn_host: ""
+
+im:
+  provider: easemob
+  org_name: ""
+  app_name: ""
+  client_id: ""
+  client_secret: ""
+
+acn:
+  platform_ratio: 10.0
+  min_withdrawal_amount: 10000
+  source_protect_days: 30
+  client_protect_days: 30
+  settlement_delay_days: 7

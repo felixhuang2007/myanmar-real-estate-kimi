@@ -1,0 +1,70 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/search/search",
+    "pages/map/map",
+    "pages/detail/detail",
+    "pages/im/im",
+    "pages/appointment/appointment",
+    "pages/profile/profile",
+    "pages/login/login",
+    "pages/house-publish/house-publish",
+    "pages/my-houses/my-houses",
+    "pages/my-appointments/my-appointments",
+    "pages/favorites/favorites",
+    "pages/agent-center/agent-center",
+    "pages/agent-houses/agent-houses",
+    "pages/agent-clients/agent-clients",
+    "pages/agent-appointments/agent-appointments",
+    "pages/agent-stats/agent-stats"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "Myanmar Home",
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh": true,
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor":="#1890ff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/map/map",
+        "text": "地图",
+        "iconPath": "assets/icons/map.png",
+        "selectedIconPath": "assets/icons/map-active.png"
+      },
+      {
+        "pagePath": "pages/agent-center/agent-center",
+        "text": "工作台",
+        "iconPath": "assets/icons/work.png",
+        "selectedIconPath": "assets/icons/work-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/icons/user.png",
+        "selectedIconPath": "assets/icons/user-active.png"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于小程序位置接口的效果展示"
+    }
+  },
+  "requiredBackgroundModes": ["audio"],
+  "usingComponents": {},
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}

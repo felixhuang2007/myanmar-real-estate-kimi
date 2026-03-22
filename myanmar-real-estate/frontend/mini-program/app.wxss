@@ -1,0 +1,285 @@
+/** 全局样式 **/
+
+/* 引入图标字体（如有需要） */
+@import './assets/styles/icons.wxss';
+
+/* 基础重置 */
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: #333;
+  background-color: #f5f5f5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 通用容器 */
+.container {
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+/* 卡片样式 */
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+/*  Flex 布局 */
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+/* 文本样式 */
+.text-primary {
+  color: #1890ff;
+}
+
+.text-success {
+  color: #52c41a;
+}
+
+.text-warning {
+  color: #faad14;
+}
+
+.text-error {
+  color: #f5222d;
+}
+
+.text-gray {
+  color: #999;
+}
+
+.text-dark {
+  color: #333;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 字号 */
+.text-xs {
+  font-size: 20rpx;
+}
+
+.text-sm {
+  font-size: 24rpx;
+}
+
+.text-base {
+  font-size: 28rpx;
+}
+
+.text-lg {
+  font-size: 32rpx;
+}
+
+.text-xl {
+  font-size: 36rpx;
+}
+
+.text-2xl {
+  font-size: 40rpx;
+}
+
+/* 间距 */
+.mt-8 { margin-top: 8rpx; }
+.mt-16 { margin-top: 16rpx; }
+.mt-24 { margin-top: 24rpx; }
+.mb-8 { margin-bottom: 8rpx; }
+.mb-16 { margin-bottom: 16rpx; }
+.mb-24 { margin-bottom: 24rpx; }
+.ml-8 { margin-left: 8rpx; }
+.ml-16 { margin-left: 16rpx; }
+.mr-8 { margin-right: 8rpx; }
+.mr-16 { margin-right: 16rpx; }
+
+.p-16 { padding: 16rpx; }
+.p-24 { padding: 24rpx; }
+
+/* 按钮样式 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 40rpx;
+  font-size: 28rpx;
+  border-radius: 8rpx;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn:active {
+  opacity: 0.8;
+}
+
+.btn-primary {
+  background: #1890ff;
+  color: #fff;
+}
+
+.btn-success {
+  background: #52c41a;
+  color: #fff;
+}
+
+.btn-warning {
+  background: #faad14;
+  color: #fff;
+}
+
+.btn-default {
+  background: #fff;
+  color: #333;
+  border: 1rpx solid #d9d9d9;
+}
+
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+.btn-large {
+  padding: 28rpx 48rpx;
+  font-size: 32rpx;
+}
+
+.btn-small {
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+}
+
+/* 标签样式 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 12rpx;
+  font-size: 20rpx;
+  border-radius: 4rpx;
+}
+
+.tag-primary {
+  background: rgba(24, 144, 255, 0.1);
+  color: #1890ff;
+}
+
+.tag-success {
+  background: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+}
+
+.tag-warning {
+  background: rgba(250, 173, 20, 0.1);
+  color: #faad14;
+}
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background: #e8e8e8;
+  margin: 24rpx 0;
+}
+
+/* 加载状态 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  color: #999;
+}
+
+/* 空状态 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 40rpx;
+  color: #999;
+}
+
+.empty-image {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 24rpx;
+}
+
+/* 价格样式 */
+.price {
+  color: #f5222d;
+  font-weight: bold;
+}
+
+.price-unit {
+  font-size: 24rpx;
+  font-weight: normal;
+}
+
+/* 验真标识 */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 12rpx;
+  background: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+  font-size: 20rpx;
+  border-radius: 4rpx;
+}
+
+.verified-badge::before {
+  content: '✓';
+  margin-right: 4rpx;
+}
+
+/* 安全区域适配 */
+.safe-area-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}

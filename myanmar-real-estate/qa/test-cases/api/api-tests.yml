@@ -1,0 +1,1154 @@
+# 接口测试用例
+# 覆盖模块：用户模块、房源模块、IM消息、预约带看、ACN分佣、核验任务、客户管理
+# 最后更新: 2026-03-22 (URL前缀统一为 /v1/, 新增经纪人/核验/客户端点)
+
+---
+# ==================== 用户模块API ====================
+
+用例ID: API-001
+模块: 用户API-注册登录
+接口: POST /v1/user/register
+标题: 用户注册接口
+请求参数:
+  phone: string # +959123456789
+  verifyCode: string # 6位数字
+  password: string # 可选
+预期结果:
+  status: 200
+  data:
+    userId: string
+    token: string
+    expiresAt: timestamp
+    isNewUser: true
+测试场景:
+  - 正常注册
+  - 手机号已注册
+  - 验证码错误 # BUG-001修复后应返回400
+  - 验证码过期
+  - 手机号格式错误
+优先级: P0
+
+用例ID: API-002
+模块: 用户API-注册登录
+接口: POST /v1/user/login
+标题: 用户登录接口
+请求参数:
+  phone: string
+  verifyCode: string
+  # 或
+  phone: string
+  password: string
+预期结果:
+  status: 200
+  data:
+    userId: string
+    token: string
+    expiresAt: timestamp
+测试场景:
+  - 验证码登录成功
+  - 密码登录成功
+  - 账号不存在
+  - 验证码错误 # BUG-001修复后应返回400
+  - 密码错误
+  - 账号被禁用
+优先级: P0
+
+用例ID: API-003
+模块: 用户API-注册登录
+接口: POST /v1/user/verify-code/send
+标题: 发送验证码接口
+请求参数:
+  phone: string
+  type: string # register/login/reset_password
+预期结果:
+  status: 200
+  data:
+    sendInterval: 60 # 下次可发送间隔
+测试场景:
+  - 发送成功
+  - 发送过于频繁
+  - 手机号格式错误
+  - 单日发送超限
+优先级: P0
+
+用例ID: API-004
+模块: 用户API-用户信息
+接口: GET /v1/user/profile
+标题: 获取用户信息
+请求头:
+  Authorization: Bearer {token}
+预期结果:
+  status: 200
+  data:
+    userId: string
+    phone: string
+    nickname: string
+    avatar: string
+    realName: string
+    identityStatus: string # unverified/pending/verified/rejected
+    createdAt: timestamp
+测试场景:
+  - Token有效
+  - Token过期
+  - Token无效
+优先级: P0
+
+用例ID: API-005
+模块: 用户API-用户信息
+接口: POST /v1/user/identity/verify
+标题: 实名认证接口
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  realName: string
+  idCardNumber: string
+  idCardFront: file
+  idCardBack: file
+预期结果:
+  status: 200
+  data:
+    verifyId: string
+    status: pending
+    estimatedTime: timestamp
+测试场景:
+  - 提交成功
+  - 身份证已被使用
+  - 图片上传失败
+  - OCR识别失败
+优先级: P0
+
+用例ID: API-006
+模块: 用户API-用户信息
+接口: PUT /v1/user/profile
+标题: 更新用户信息
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  nickname: string
+  avatar: file
+  gender: string
+预期结果:
+  status: 200
+测试场景:
+  - 更新成功
+  - 昵称重复
+  - 图片过大
+优先级: P1
+
+用例ID: API-007
+模块: 用户API-第三方登录
+接口: POST /v1/user/oauth/facebook
+标题: Facebook登录
+状态: N/A # OAuth Facebook 未实现，计划集成
+请求参数:
+  accessToken: string
+  userInfo:
+    id: string
+    name: string
+    email: string
+预期结果:
+  status: 200
+  data:
+    userId: string
+    token: string
+    isNewUser: boolean
+    needBindPhone: boolean # 首次需绑定手机号
+测试场景:
+  - 登录成功
+  - Token无效
+  - 首次登录需绑手机号
+优先级: P1
+
+用例ID: API-008
+模块: 用户API-B端入驻
+接口: POST /v1/agent/register
+标题: 经纪人注册
+备注: BUG-007修复后新增端点
+请求参数:
+  phone: string
+  verifyCode: string
+  name: string
+  idCardNumber: string
+  idCardFront: file
+  idCardBack: file
+  companyId: string # 可选
+  storeId: string # 可选
+预期结果:
+  status: 200
+  data:
+    agentId: string
+    status: pending # 待审核
+测试场景:
+  - 注册成功待审核
+  - 已是C端用户
+  - 身份证已被使用
+优先级: P0
+
+用例ID: API-009
+模块: 用户API-B端入驻
+接口: GET /v1/agent/status
+标题: 查询经纪人状态
+备注: BUG-007修复后新增端点
+请求头:
+  Authorization: Bearer {token}
+预期结果:
+  status: 200
+  data:
+    agentId: string
+    status: string # pending/approved/rejected
+    rejectReason: string
+测试场景:
+  - 查询成功
+  - 非经纪人
+优先级: P0
+
+---
+# ==================== 房源模块API ====================
+
+用例ID: API-021
+模块: 房源API-搜索
+接口: GET /v1/houses/search
+标题: 房源搜索接口
+请求参数:
+  transactionType: string # sale/rent
+  cityCode: string
+  districtCode: string # 可选
+  priceMin: number # 可选
+  priceMax: number # 可选
+  areaMin: number # 可选
+  areaMax: number # 可选
+  roomCount: string # 可选
+  houseType: string # 可选
+  keywords: string # 可选
+  sortBy: string # default/price_asc/price_desc/date/area
+  page: int
+  pageSize: int
+预期结果:
+  status: 200
+  data:
+    total: int
+    page: int
+    pageSize: int
+    list:
+      - houseId: string
+        title: string
+        coverImage: string
+        price: number
+        priceUnit: string
+        area: number
+        rooms: string
+        location: string
+        tags: string[]
+        verificationStatus: string
+测试场景:
+  - 基础搜索
+  - 多条件筛选
+  - 关键词搜索
+  - 排序
+  - 分页
+  - 结果为空
+优先级: P0
+
+用例ID: API-022
+模块: 房源API-搜索
+接口: GET /v1/houses/{houseId}
+标题: 房源详情接口
+请求参数:
+  houseId: path variable
+预期结果:
+  status: 200
+  data:
+    houseId: string
+    title: string
+    images: string[]
+    video: string
+    price: number
+    priceUnit: string
+    priceNote: string
+    tags: string[]
+    basicInfo: object
+    location: object
+    features: object
+    property: object
+    verification: object
+    agent: object
+测试场景:
+  - 获取成功
+  - 房源不存在
+  - 房源已下架
+优先级: P0
+
+用例ID: API-023
+模块: 房源API-搜索
+接口: GET /v1/houses/map/aggregate
+标题: 地图聚合接口
+请求参数:
+  bounds:
+    swLat: number
+    swLng: number
+    neLat: number
+    neLng: number
+  zoom: int
+  filters: object # 同搜索筛选条件
+预期结果:
+  status: 200
+  data:
+    level: int # 1/2/3
+    clusters:
+      - id: string
+        name: string
+        lat: number
+        lng: number
+        avgPrice: number
+        totalCount: int
+    houses: # level=3时返回
+      - houseId: string
+        lat: number
+        lng: number
+        price: number
+测试场景:
+  - L1级聚合
+  - L2级聚合
+  - L3级详情
+  - 跨边界处理
+优先级: P0
+
+用例ID: API-024
+模块: 房源API-搜索
+接口: GET /v1/houses/recommend
+标题: 首页推荐接口
+请求头:
+  Authorization: Bearer {token} # 可选
+请求参数:
+  cityCode: string
+  districtCode: string # 可选
+  page: int
+  pageSize: int
+预期结果:
+  status: 200
+  data:
+    banners: object[]
+    quickEntries: object[]
+    houses: object[]
+测试场景:
+  - 已登录推荐
+  - 未登录推荐
+  - 不同城市
+优先级: P0
+
+用例ID: API-025
+模块: 房源API-管理
+接口: POST /v1/houses
+标题: 创建房源接口
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  title: string
+  transactionType: string
+  houseType: string
+  price: number
+  area: number
+  rooms: string
+  districtCode: string
+  address: string
+  contactName: string
+  contactPhone: string
+  images: string[] # 图片URL数组
+  location:
+    lat: number
+    lng: number
+  # 其他可选字段...
+预期结果:
+  status: 200
+  data:
+    houseId: string
+    status: pending_review
+测试场景:
+  - 创建成功
+  - 必填项缺失
+  - 图片数量不足
+  - 价格异常
+优先级: P0
+
+用例ID: API-026
+模块: 房源API-管理
+接口: PUT /v1/houses/{houseId}
+标题: 更新房源接口
+请求头:
+  Authorization: Bearer {token}
+请求参数: # 同创建，部分字段
+预期结果:
+  status: 200
+测试场景:
+  - 更新成功
+  - 无权限
+  - 审核中不可编辑
+  - 已售不可编辑
+优先级: P0
+
+用例ID: API-027
+模块: 房源API-管理
+接口: POST /v1/houses/{houseId}/offline
+标题: 房源下架接口
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  reason: string
+预期结果:
+  status: 200
+测试场景:
+  - 下架成功
+  - 无权限
+优先级: P0
+
+用例ID: API-028
+模块: 房源API-收藏
+接口: POST /v1/houses/{houseId}/favorite
+标题: 收藏房源接口
+请求头:
+  Authorization: Bearer {token}
+预期结果:
+  status: 200
+测试场景:
+  - 收藏成功
+  - 取消收藏
+  - 房源不存在
+优先级: P0
+
+用例ID: API-029
+模块: 房源API-收藏
+接口: GET /v1/user/favorites
+标题: 获取收藏列表接口
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  page: int
+  pageSize: int
+预期结果:
+  status: 200
+  data:
+    total: int
+    list: object[]
+测试场景:
+  - 获取成功
+  - 空列表
+优先级: P0
+
+---
+# ==================== IM消息模块API ====================
+
+用例ID: API-041
+模块: IM API-会话
+接口: GET /v1/im/conversations
+标题: 获取会话列表
+备注: BUG-002修复后正常（原500错误，GORM Count查询缺少.Model()）; BUG-005修复后正常（conversations表缺少is_pinned列）
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  page: int
+预期结果:
+  status: 200
+  data:
+    list:
+      - conversationId: string
+        targetId: string # 对方ID
+        targetName: string
+        targetAvatar: string
+        lastMessage: object
+        unreadCount: int
+        isPinned: boolean
+        updatedAt: timestamp
+测试场景:
+  - 获取成功
+  - 无会话
+优先级: P0
+
+用例ID: API-042
+模块: IM API-消息
+接口: GET /v1/im/messages
+标题: 获取消息记录
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  conversationId: string
+  targetId: string
+  lastMessageId: string # 分页用
+  limit: int
+预期结果:
+  status: 200
+  data:
+    messages:
+      - messageId: string
+        type: string # text/image/voice/house_card/system
+        content: string
+        fromId: string
+        toId: string
+        status: string
+        createdAt: timestamp
+测试场景:
+  - 获取成功
+  - 历史消息加载
+  - 空记录
+优先级: P0
+
+用例ID: API-043
+模块: IM API-消息
+接口: POST /v1/im/messages/send
+标题: 发送消息接口
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  targetId: string
+  type: string # text/image/voice
+  content: string # 文字内容或媒体URL
+  # 或
+  houseId: string # 房源卡片
+预期结果:
+  status: 200
+  data:
+    messageId: string
+    status: sent
+测试场景:
+  - 发送文字
+  - 发送图片
+  - 发送语音
+  - 发送房源卡片
+  - 敏感词拦截
+优先级: P0
+
+用例ID: API-044
+模块: IM API-消息
+接口: POST /v1/im/messages/{messageId}/read
+标题: 标记消息已读
+请求头:
+  Authorization: Bearer {token}
+预期结果:
+  status: 200
+测试场景:
+  - 标记成功
+优先级: P1
+
+用例ID: API-045
+模块: IM API-消息
+接口: POST /v1/im/messages/{messageId}/recall
+标题: 撤回消息
+请求头:
+  Authorization: Bearer {token}
+预期结果:
+  status: 200
+测试场景:
+  - 2分钟内撤回成功
+  - 超过2分钟撤回失败
+优先级: P1
+
+用例ID: API-046
+模块: IM API-快捷话术
+接口: GET /v1/im/quick-replies
+标题: 获取快捷话术
+请求头:
+  Authorization: Bearer {token}
+预期结果:
+  status: 200
+  data:
+    categories:
+      - name: string
+        replies:
+          - id: string
+            content: string
+测试场景:
+  - 获取成功
+优先级: P1
+
+用例ID: API-047
+模块: IM API-快捷话术
+接口: POST /v1/im/quick-replies
+标题: 添加快捷话术
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  category: string
+  content: string
+预期结果:
+  status: 200
+测试场景:
+  - 添加成功
+优先级: P2
+
+---
+# ==================== 预约带看模块API ====================
+
+用例ID: API-061
+模块: 预约API-时间段
+接口: GET /v1/appointments/slots
+标题: 获取可预约时间段
+请求参数:
+  houseId: string
+  agentId: string
+  startDate: string # YYYY-MM-DD
+  endDate: string
+预期结果:
+  status: 200
+  data:
+    dates:
+      - date: string
+        slots:
+          - time: string # HH:MM
+            available: boolean
+            reason: string # 如已约满
+测试场景:
+  - 获取成功
+  - 经纪人未设置时间
+优先级: P0
+
+用例ID: API-062
+模块: 预约API-预约
+接口: POST /v1/appointments
+标题: 创建预约接口
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  houseId: string
+  agentId: string
+  appointmentTime: timestamp
+  remark: string # 可选
+预期结果:
+  status: 200
+  data:
+    appointmentId: string
+    status: pending_confirm
+测试场景:
+  - 创建成功
+  - 时间已被预约
+  - 时间已过期
+  - 未实名认证
+  - 爽约次数超限
+优先级: P0
+
+用例ID: API-063
+模块: 预约API-预约
+接口: GET /v1/appointments
+标题: 获取预约列表
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  status: string # 可选筛选
+  role: string # user/agent 视角
+  page: int
+预期结果:
+  status: 200
+  data:
+    total: int
+    list:
+      - appointmentId: string
+        house: object
+        agent: object
+        appointmentTime: timestamp
+        status: string
+        createdAt: timestamp
+测试场景:
+  - C端查看我的预约
+  - B端查看我的带看
+  - 按状态筛选
+优先级: P0
+
+用例ID: API-064
+模块: 预约API-预约
+接口: GET /v1/appointments/{appointmentId}
+标题: 获取预约详情
+请求头:
+  Authorization: Bearer {token}
+预期结果:
+  status: 200
+  data:
+    appointmentId: string
+    house: object
+    agent: object
+    user: object
+    appointmentTime: timestamp
+    status: string
+    remark: string
+    timeline: # 操作记录
+      - action: string
+        time: timestamp
+        operator: string
+测试场景:
+  - 获取成功
+  - 无权限
+优先级: P0
+
+用例ID: API-065
+模块: 预约API-确认
+接口: POST /v1/appointments/{appointmentId}/confirm
+标题: 经纪人确认预约
+请求头:
+  Authorization: Bearer {token}
+预期结果:
+  status: 200
+测试场景:
+  - 确认成功
+  - 超时自动拒绝
+  - 已被其他操作处理
+优先级: P0
+
+用例ID: API-066
+模块: 预约API-确认
+接口: POST /v1/appointments/{appointmentId}/reject
+标题: 经纪人拒绝预约
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  reason: string
+  suggestedTime: timestamp # 建议其他时间
+预期结果:
+  status: 200
+测试场景:
+  - 拒绝成功
+  - 推荐其他时间
+优先级: P0
+
+用例ID: API-067
+模块: 预约API-签到
+接口: POST /v1/appointments/{appointmentId}/checkin
+标题: 带看签到接口
+状态: N/A # GPS位置签到依赖移动设备，自动化测试环境无法模拟
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  lat: number
+  lng: number
+  location: string
+预期结果:
+  status: 200
+测试场景:
+  - 签到成功（在范围内）
+  - 签到失败（超出范围）
+  - 重复签到
+优先级: P0
+
+用例ID: API-068
+模块: 预约API-完成
+接口: POST /v1/appointments/{appointmentId}/complete
+标题: 完成带看接口
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  feedback: string
+  intentionLevel: string # A/B/C
+  nextFollowPlan: string
+预期结果:
+  status: 200
+测试场景:
+  - 完成成功
+  - 未签到不可完成
+优先级: P0
+
+用例ID: API-069
+模块: 预约API-取消
+接口: POST /v1/appointments/{appointmentId}/cancel
+标题: 取消预约接口
+备注: BUG-008修复后，取消不存在资源应返回404而非200
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  reason: string
+  cancelBy: string # user/agent
+预期结果:
+  status: 200
+  status_not_found: 404 # 资源不存在时
+测试场景:
+  - 用户取消
+  - 经纪人取消
+  - 已确认后取消
+  - 取消不存在的预约（应返回404）
+优先级: P0
+
+用例ID: API-070
+模块: 预约API-评价
+接口: POST /v1/appointments/{appointmentId}/review
+标题: 带看评价接口
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  rating: int # 1-5
+  content: string
+预期结果:
+  status: 200
+测试场景:
+  - 评价成功
+  - 重复评价
+  - 未完成不可评价
+优先级: P1
+
+---
+# ==================== ACN分佣模块API ====================
+
+用例ID: API-081
+模块: ACN API-成交
+接口: POST /v1/deals
+标题: 成交申报接口
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  houseId: string
+  dealPrice: number # 成交价格
+  commission: number # 佣金金额
+  dealDate: timestamp
+  contractImage: string # 合同照片URL
+  participants:
+    - role: string # ENTRANT/MAINTAINER/INTRODUCER/ACCOMPANIER/CLOSER
+      agentId: string
+预期结果:
+  status: 200
+  data:
+    dealId: string
+    status: pending_confirm
+    estimatedCommission: object # 各方预估分佣
+测试场景:
+  - 申报成功
+  - 房源不存在
+  - 超过24小时申报
+  - 参与方重复
+优先级: P0
+
+用例ID: API-082
+模块: ACN API-成交
+接口: GET /v1/deals
+标题: 成交列表查询
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  status: string # 可选
+  startDate: string
+  endDate: string
+  page: int
+预期结果:
+  status: 200
+  data:
+    total: int
+    list:
+      - dealId: string
+        house: object
+        dealPrice: number
+        commission: number
+        participants: object[]
+        status: string
+        createdAt: timestamp
+测试场景:
+  - 查询成功
+  - 按状态筛选
+优先级: P0
+
+用例ID: API-083
+模块: ACN API-确认
+接口: POST /v1/deals/{dealId}/confirm
+标题: 确认成交分佣
+请求头:
+  Authorization: Bearer {token}
+预期结果:
+  status: 200
+测试场景:
+  - 确认成功
+  - 48小时超时自动确认
+  - 非参与方确认
+优先级: P0
+
+用例ID: API-084
+模块: ACN API-申诉
+接口: POST /v1/deals/{dealId}/dispute
+标题: 成交申诉接口
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  reason: string
+  evidence: string[] # 证据图片
+预期结果:
+  status: 200
+  data:
+    disputeId: string
+    status: pending
+测试场景:
+  - 申诉成功
+  - 状态变为争议中
+  - 平台介入处理
+优先级: P0
+
+用例ID: API-085
+模块: ACN API-分佣
+接口: GET /v1/commission/balance
+标题: 查询佣金余额
+请求头:
+  Authorization: Bearer {token}
+预期结果:
+  status: 200
+  data:
+    availableBalance: number # 可提现
+    pendingBalance: number # 待结算
+    totalEarned: number # 累计收入
+测试场景:
+  - 查询成功
+优先级: P0
+
+用例ID: API-086
+模块: ACN API-分佣
+接口: GET /v1/commission/records
+标题: 佣金明细查询
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  type: string # income/withdrawal
+  status: string # 可选
+  page: int
+预期结果:
+  status: 200
+  data:
+    total: int
+    list:
+      - recordId: string
+        type: string
+        amount: number
+        deal: object # 关联成交单
+        status: string
+        createdAt: timestamp
+        completedAt: timestamp
+测试场景:
+  - 查询成功
+  - 按类型筛选
+优先级: P0
+
+用例ID: API-087
+模块: ACN API-提现
+接口: POST /v1/commission/withdrawal
+标题: 佣金提现申请
+状态: N/A # 缅甸本地支付渠道集成未完成
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  amount: number
+  method: string # bank_transfer/mobile_money
+  accountInfo: object
+预期结果:
+  status: 200
+  data:
+    withdrawalId: string
+    status: pending
+    estimatedArrival: timestamp
+测试场景:
+  - 申请成功
+  - 余额不足
+  - 低于最低提现额
+  - 账户信息错误
+优先级: P0
+
+用例ID: API-088
+模块: ACN API-规则
+接口: GET /v1/acn/roles
+标题: 获取ACN分佣规则（角色列表）
+备注: BUG-003修复后正常（原500错误，DefaultRatio字段类型从int64改为float64）; 注意实际路由为 /v1/acn/roles 而非 /v1/acn/rules
+预期结果:
+  status: 200
+  data:
+    - code: string
+      name: string
+      defaultRatio: number # float64，如 0.35
+      description: string
+测试场景:
+  - 获取成功
+优先级: P0
+
+---
+# ==================== 核验任务模块API ====================
+
+用例ID: API-101
+模块: 核验API-我的任务
+接口: GET /v1/verification/my-tasks
+标题: 获取我的核验任务列表
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  status: string # 可选: pending/in_progress/completed
+  page: int
+  pageSize: int
+预期结果:
+  status: 200
+  data:
+    total: int
+    list:
+      - taskId: string
+        houseId: string
+        houseTitle: string
+        assignedAt: timestamp
+        status: string
+        dueAt: timestamp
+测试场景:
+  - 获取成功
+  - 无任务
+  - 按状态筛选
+优先级: P0
+
+用例ID: API-102
+模块: 核验API-任务列表
+接口: GET /v1/verification/tasks
+标题: 获取全部核验任务列表（管理员）
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  status: string # 可选
+  agentId: string # 可选，按经纪人筛选
+  page: int
+  pageSize: int
+预期结果:
+  status: 200
+  data:
+    total: int
+    list:
+      - taskId: string
+        houseId: string
+        houseTitle: string
+        agentId: string
+        agentName: string
+        status: string
+        createdAt: timestamp
+        completedAt: timestamp
+测试场景:
+  - 获取成功（管理员）
+  - 无权限（普通用户）
+  - 按状态筛选
+  - 按经纪人筛选
+优先级: P0
+
+---
+# ==================== 客户管理模块API ====================
+
+用例ID: API-111
+模块: 客户API-列表
+接口: GET /v1/clients
+标题: 获取客户列表
+备注: BUG-004修复后正常（clients表缺列，BUG-006修复source CHECK约束）
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  page: int
+  pageSize: int
+  status: string # 可选
+  intentionLevel: string # 可选: A/B/C
+预期结果:
+  status: 200
+  data:
+    total: int
+    list:
+      - clientId: string
+        name: string
+        phone: string
+        source: string
+        intentionLevel: string
+        status: string
+        createdAt: timestamp
+测试场景:
+  - 获取成功
+  - 无客户
+  - 按意向等级筛选
+优先级: P0
+
+用例ID: API-112
+模块: 客户API-创建
+接口: POST /v1/clients
+标题: 创建客户
+备注: BUG-004修复后正常（clients表缺少必要列，外键约束被删除）
+请求头:
+  Authorization: Bearer {token}
+请求参数:
+  name: string
+  phone: string
+  source: string # 可为空字符串
+  intentionLevel: string # A/B/C
+  budget: number # 可选
+  requirements: string # 可选
+预期结果:
+  status: 200
+  data:
+    clientId: string
+    createdAt: timestamp
+测试场景:
+  - 创建成功
+  - 必填项缺失
+  - 手机号已存在
+  - source字段为空（应允许）
+优先级: P0
+
+---
+# ==================== 通用API ====================
+
+用例ID: API-091
+模块: 通用API-上传
+接口: POST /v1/upload/image
+标题: 图片上传接口
+请求头:
+  Authorization: Bearer {token}
+  Content-Type: multipart/form-data
+请求参数:
+  file: File
+  type: string # house/avatar/verification等
+预期结果:
+  status: 200
+  data:
+    url: string # 图片URL
+    width: int
+    height: int
+    size: int
+测试场景:
+  - 上传成功
+  - 文件过大
+  - 格式不支持
+  - 上传失败重试
+优先级: P0
+
+用例ID: API-092
+模块: 通用API-地区
+接口: GET /v1/regions
+标题: 获取地区列表
+请求参数:
+  parentCode: string # 上级编码
+预期结果:
+  status: 200
+  data:
+    - code: string
+      name: string
+      nameEn: string
+      children: object[]
+测试场景:
+  - 获取城市列表
+  - 获取镇区列表
+  - 获取商圈列表
+优先级: P0
+
+用例ID: API-093
+模块: 通用API-配置
+接口: GET /v1/config
+标题: 获取全局配置
+预期结果:
+  status: 200
+  data:
+    appVersion: object
+    customerService: object
+    agreementUrls: object
+测试场景:
+  - 获取成功
+优先级: P0
+
+用例ID: API-094
+模块: 通用API-埋点
+接口: POST /v1/events
+标题: 埋点上报接口
+请求头:
+  Authorization: Bearer {token} # 可选
+请求参数:
+  events:
+    - eventName: string
+      eventTime: timestamp
+      properties: object
+预期结果:
+  status: 200
+测试场景:
+  - 批量上报
+  - 单条上报
+优先级: P1

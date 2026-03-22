@@ -1,0 +1,9 @@
+<!-- agent-app strings -->
+<resources>
+    <string name="app_name">缅甸房产-经纪人</string>
+    <string name="nav_home">首页</string>
+    <string name="nav_house">房源</string>
+    <string name="nav_customer">客户</string>
+    <string name="nav_appointment">带看</string>
+    <string name="nav_profile">我的</string>
+</resources>

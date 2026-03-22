@@ -1,0 +1,66 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go vendor directory
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+backend/server
+backend/server.exe
+flutter/build/
+frontend/web-admin/dist/
+frontend/web-admin/node_modules/
+
+# Logs
+logs/
+*.log
+
+# Local config (contains secrets)
+config.local.yaml
+config.production.yaml
+backend/config.local.yaml
+myanmar-real-estate/backend/config.yaml
+myanmar-real-estate/backend/.env*
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Database
+*.db
+*.sqlite
+
+# Temporary files
+tmp/
+temp/
+
+# Git worktrees
+.worktrees/
+
+# Webpack/Bundler cache (large binary files)
+*.pack
+*.pack.old
+node_modules/.cache/
+frontend/web-admin/node_modules/.cache/

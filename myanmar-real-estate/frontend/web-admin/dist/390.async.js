@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmyanmarhome_admin=self.webpackChunkmyanmarhome_admin||[]).push([[390],{96390:function(o,t,n){n.r(t),n.d(t,{default:function(){return a}});var s=n(67294),m=n(82188),u=n(85893);function a(){var E=(0,m.bx)();return(0,u.jsx)(m.j3,{context:E})}}}]);

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmyanmarhome_admin=self.webpackChunkmyanmarhome_admin||[]).push([[515],{48932:function(A,n,u){u.r(n);var m=u(67294),a=u(4393),E=u(85893),t=function(){return(0,E.jsx)(a.Z,{title:"\u7ECF\u7EAA\u4EBA\u5217\u8868",children:(0,E.jsx)("p",{children:"\u7ECF\u7EAA\u4EBA\u5217\u8868\u529F\u80FD\u5F85\u5F00\u53D1..."})})};n.default=t}}]);

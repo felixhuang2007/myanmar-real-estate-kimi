@@ -1,0 +1,470 @@
+# 兼容性测试用例（Flutter适配版）
+# 覆盖：设备兼容性、系统兼容性、网络兼容性、分辨率兼容性
+# 技术栈：Flutter跨平台框架
+# 注意：Flutter应用使用Dart语言开发，通过平台通道调用原生功能
+
+---
+# ==================== 设备兼容性（Flutter） ====================
+
+用例ID: COMP-001
+模块: 设备兼容性-C端Android(Flutter)
+标题: Flutter Android主流机型测试
+测试设备:
+  - Samsung Galaxy S23 (Android 13)
+  - Samsung Galaxy A54 (Android 13)
+  - Xiaomi 13 (Android 13)
+  - Xiaomi Redmi Note 12 (Android 12)
+  - OPPO Find X6 (Android 13)
+  - vivo X90 (Android 13)
+  - Huawei P60 (HarmonyOS 3.1)
+  - Google Pixel 7 (Android 13)
+Flutter特定测试项:
+  - Flutter引擎启动速度
+  - Skia渲染性能
+  - 平台通道调用（地图、推送、IM）
+  - 图片加载（cached_network_image插件）
+测试内容:
+  - APP安装/卸载（APK大小检查）
+  - 注册/登录流程
+  - 房源浏览和搜索
+  - 地图找房（Flutter地图插件）
+  - IM聊天（Flutter IM SDK集成）
+  - 图片上传（image_picker插件）
+  - 推送通知（firebase_messaging插件）
+预期结果:
+  - 所有功能正常运行
+  - UI显示正常无错位
+  - 性能流畅无卡顿（FPS>55）
+  - Flutter热重载不影响Release包
+优先级: P0
+
+用例ID: COMP-002
+模块: 设备兼容性-C端iOS(Flutter)
+标题: Flutter iOS主流机型测试
+测试设备:
+  - iPhone 15 Pro Max (iOS 17)
+  - iPhone 15 (iOS 17)
+  - iPhone 14 Pro (iOS 17)
+  - iPhone 13 (iOS 16)
+  - iPhone 12 (iOS 16)
+  - iPhone SE 3 (iOS 17)
+Flutter特定测试项:
+  - iOS Skia/Impeller渲染后端
+  - iOS平台通道性能
+  - 苹果推送服务集成
+测试内容:
+  - APP安装/卸载（IPA大小检查）
+  - 注册/登录流程
+  - 房源浏览和搜索
+  - 地图找房
+  - IM聊天
+  - 图片上传（相册/相机权限）
+  - 推送通知（APNs集成）
+预期结果:
+  - 所有功能正常运行
+  - 符合iOS设计规范
+  - 性能流畅无卡顿（FPS>55）
+  - 通过App Store审核要求
+优先级: P0
+
+用例ID: COMP-003
+模块: 设备兼容性-B端Android(Flutter)
+标题: B端APP Flutter Android兼容性
+测试设备:
+  - Samsung Galaxy S23 (Android 13)
+  - Samsung Galaxy A34 (Android 13)
+  - Xiaomi 13 (Android 13)
+  - OPPO Reno8 (Android 12)
+Flutter特定测试项:
+  - 相机水印（自定义Painter实现）
+  - GPS定位（geolocator插件）
+  - 离线数据存储（sqflite插件）
+测试内容:
+  - 录房功能（图片压缩上传）
+  - 验真拍照（camera插件+水印）
+  - 客户管理（本地数据库同步）
+  - 带看管理（日历组件）
+  - 业绩统计（图表插件）
+预期结果:
+  - 拍照水印正常（Flutter Canvas绘制）
+  - GPS定位准确（平台通道调用原生）
+  - 离线模式可用（sqflite本地存储）
+  - 后台定位权限申请正常
+优先级: P0
+
+用例ID: COMP-004
+模块: 设备兼容性-Flutter引擎差异
+标题: Flutter引擎版本兼容性
+测试Flutter版本:
+  - Flutter 3.16 (稳定版)
+  - Flutter 3.19 (最新版)
+测试项:
+  - 渲染引擎差异（Skia vs Impeller）
+  - Dart语言特性兼容性
+  - 第三方插件版本兼容
+预期结果:
+  - 指定Flutter版本编译通过
+  - 无废弃API警告
+  - 渲染一致性
+优先级: P1
+
+---
+# ==================== 系统版本兼容性（Flutter） ====================
+
+用例ID: COMP-011
+模块: 系统兼容性-Flutter Android版本
+标题: Flutter Android系统版本兼容
+测试版本:
+  - Android 14 (API 34)
+  - Android 13 (API 33)
+  - Android 12 (API 31)
+  - Android 11 (API 30)
+  - Android 10 (API 29)
+  - Android 9 (API 28) - 最低支持版本
+Flutter特定测试项:
+  - Flutter引擎最低版本要求
+  - 平台通道兼容性
+  - 插件API级别适配
+测试重点:
+  - 权限申请（存储、位置、相机、麦克风）
+  - 通知权限（Android 13+，Flutter本地通知）
+  - 后台限制（Android 10+）
+  - Scoped Storage (Android 10+)
+  - Flutter渲染兼容性
+预期结果:
+  - 各版本功能正常
+  - 权限申请适配
+  - 存储访问正常
+  - Flutter渲染无差异
+优先级: P0
+
+用例ID: COMP-012
+模块: 系统兼容性-Flutter iOS版本
+标题: Flutter iOS系统版本兼容
+测试版本:
+  - iOS 17
+  - iOS 16
+  - iOS 15
+  - iOS 14 - 最低支持版本
+Flutter特定测试项:
+  - Flutter对iOS 14+的适配
+  - Impeller渲染引擎（iOS 16+）
+测试重点:
+  - ATT权限申请（iOS 14.5+，Flutter app_tracking_transparency插件）
+  - 推送通知权限（firebase_messaging）
+  - 照片访问权限（image_picker）
+  - 定位权限（geolocator）
+  - 隐私清单文件（iOS 17+）
+预期结果:
+  - 各版本功能正常
+  - 权限申请适配
+  - 隐私合规
+  - 通过App Store审核
+优先级: P0
+
+---
+# ==================== 网络兼容性 ====================
+
+用例ID: COMP-021
+模块: 网络兼容性-网络类型
+标题: 不同网络类型测试
+测试网络:
+  - 5G网络
+  - 4G/LTE网络
+  - 3G网络
+  - WiFi网络
+  - 2G网络（弱网）
+测试内容:
+  - APP启动
+  - 页面加载
+  - 图片上传
+  - 视频播放
+  - IM消息发送
+  - 地图加载
+预期结果:
+  - 各网络下功能可用
+  - 弱网有loading提示
+  - 超时重试机制正常
+优先级: P0
+
+用例ID: COMP-022
+模块: 网络兼容性-弱网环境
+标题: 弱网环境测试
+测试场景:
+  - 网络延迟 > 2000ms
+  - 丢包率 > 20%
+  - 带宽 < 100kbps
+  - 间歇性断网
+测试内容:
+  - 表单提交
+  - 图片上传
+  - 地图加载
+  - IM消息
+  - 支付流程
+预期结果:
+  - 超时提示友好
+  - 失败可重试
+  - 断网恢复后自动重连
+  - 数据不丢失
+优先级: P0
+
+用例ID: COMP-023
+模块: 网络兼容性-网络切换
+标题: 网络切换测试
+测试场景:
+  - WiFi -> 4G
+  - 4G -> WiFi
+  - 4G -> 无网 -> 4G
+  - 飞行模式开关
+测试内容:
+  - 页面浏览
+  - 视频播放
+  - 文件上传
+  - 实时通信
+预期结果:
+  - 切换时无崩溃
+  - 自动恢复数据加载
+  - 提示当前网络状态
+优先级: P1
+
+---
+# ==================== Flutter平台通道测试 ====================
+
+用例ID: COMP-013
+模块: 平台通道兼容性
+标题: Flutter与原生平台通道测试
+测试场景:
+  - MethodChannel调用原生地图SDK
+  - EventChannel接收原生推送
+  - BasicMessageChannel与IM SDK通信
+测试内容:
+  - 地图初始化（google_maps_flutter插件）
+  - 定位获取（geolocator插件）
+  - 相机调用（camera插件）
+  - 相册选择（image_picker插件）
+  - 推送接收（firebase_messaging插件）
+  - 支付调用（platform channel自定义）
+异常测试:
+  - 平台通道调用超时
+  - 原生端返回异常
+  - 跨平台数据序列化问题
+预期结果:
+  - 平台通道调用成功
+  - 数据传递正确
+  - 异常有捕获处理
+  - 无内存泄漏
+优先级: P0
+
+用例ID: COMP-014
+模块: Flutter性能测试
+标题: Flutter渲染性能测试
+测试项:
+  - 页面打开帧率（FPS）
+  - 列表滚动流畅度
+  - 图片加载性能
+  - 内存占用
+  - 包体积大小
+测试场景:
+  - 房源列表页快速滚动
+  - 地图页缩放操作
+  - 图片大图浏览
+  - IM聊天记录加载
+性能指标:
+  - FPS >= 55
+  - 内存增长 < 100MB/小时
+  - 冷启动时间 < 3秒
+  - APK/IPA大小合理（Flutter引擎约5MB）
+预期结果:
+  - 性能指标达标
+  - 无明显卡顿
+  - 内存无泄漏
+优先级: P0
+
+---
+# ==================== 分辨率兼容性 ====================
+
+用例ID: COMP-031
+模块: 分辨率兼容性-手机
+标题: 手机屏幕分辨率适配
+测试分辨率:
+  - 360x640 (hdpi)
+  - 375x667 (iPhone SE)
+  - 390x844 (iPhone 14)
+  - 393x852 (iPhone 15)
+  - 393x873 (Android)
+  - 412x915 (Android)
+  - 428x926 (iPhone 14 Pro Max)
+  - 360x780 (小屏Android)
+测试重点:
+  - 首页布局
+  - 搜索筛选器
+  - 房源列表
+  - 详情页
+  - IM聊天页
+预期结果:
+  - 无元素重叠
+  - 文字完整显示
+  - 按钮可点击
+  - 图片正常展示
+优先级: P0
+
+用例ID: COMP-032
+模块: 分辨率兼容性-刘海屏/灵动岛
+标题: 异形屏适配
+测试设备:
+  - iPhone 15 Pro (灵动岛)
+  - iPhone 14 Pro (灵动岛)
+  - iPhone 13 Pro Max (刘海屏)
+  - 华为Mate 60 Pro (挖孔屏)
+  - 三星Galaxy S23 (挖孔屏)
+测试重点:
+  - 状态栏高度
+  - 顶部导航栏
+  - 全屏图片展示
+  - 横屏模式
+预期结果:
+  - 内容不被遮挡
+  - 安全区域适配
+  - 横屏正常显示
+优先级: P0
+
+用例ID: COMP-033
+模块: 分辨率兼容性-折叠屏
+标题: 折叠屏适配
+测试设备:
+  - Samsung Galaxy Z Fold 5
+  - Samsung Galaxy Z Flip 5
+  - Huawei Mate X3
+测试重点:
+  - 展开/折叠切换
+  - 大屏布局适配
+  - 多窗口模式
+  - 连续性体验
+预期结果:
+  - 切换时状态保持
+  - 大屏充分利用
+  - 功能正常
+优先级: P2
+
+---
+# ==================== 浏览器兼容性（管理后台） ====================
+
+用例ID: COMP-041
+模块: 浏览器兼容性-PC端
+标题: PC浏览器兼容测试
+测试浏览器:
+  - Chrome 120+
+  - Firefox 120+
+  - Safari 17+
+  - Edge 120+
+测试内容:
+  - 登录页面
+  - 数据表格展示
+  - 表单提交
+  - 图表展示
+  - 文件导出
+预期结果:
+  - 各浏览器显示一致
+  - 功能正常使用
+  - 无JS错误
+优先级: P0
+
+用例ID: COMP-042
+模块: 浏览器兼容性-移动端H5
+标题: 移动端浏览器兼容
+测试浏览器:
+  - Chrome Mobile (Android)
+  - Safari (iOS)
+  - Samsung Internet
+  - UC浏览器
+测试内容:
+  - H5页面打开
+  - 表单填写
+  - 图片上传
+  - 地图展示
+预期结果:
+  - 功能正常
+  - 适配移动端屏幕
+优先级: P1
+
+---
+# ==================== 语言和地区兼容性 ====================
+
+用例ID: COMP-051
+模块: 语言兼容性
+标题: 多语言适配测试
+测试语言:
+  - 缅语 (Myanmar)
+  - 英语 (English)
+  - 中文 (Chinese) - 暂不支持
+测试内容:
+  - 界面文字显示
+  - 搜索功能
+  - 表单验证提示
+  - 推送通知
+  - 短信内容
+预期结果:
+  - 缅语显示正常（Unicode）
+  - 文字不换行异常
+  - 从右到左布局检查
+优先级: P0
+
+用例ID: COMP-052
+模块: 时区兼容性
+标题: 时区适配测试
+测试时区:
+  - Asia/Yangon (UTC+6:30) - 缅甸标准时间
+  - 其他时区
+测试内容:
+  - 时间显示
+  - 预约时间
+  - 消息时间戳
+  - 数据统计
+预期结果:
+  - 缅甸时区正确显示
+  - 时间换算正确
+  - 夏令时处理
+优先级: P1
+
+用例ID: COMP-053
+模块: 地区兼容性
+标题: 地区差异测试
+测试地区:
+  - 仰光 (Yangon)
+  - 曼德勒 (Mandalay)
+  - 内比都 (Naypyidaw)
+测试内容:
+  - 地区列表加载
+  - 房源筛选
+  - 地图定位
+  - 本地价格显示
+预期结果:
+  - 各地区数据正确
+  - 货币单位统一（缅币）
+  - 地址格式正确
+优先级: P0
+
+---
+# ==================== 兼容性测试工具建议 ====================
+
+自动化测试工具:
+  - BrowserStack: 云真机测试
+  - AWS Device Farm: AWS设备测试
+  - Firebase Test Lab: Google测试服务
+  - Appium: 自动化测试框架
+
+手动测试设备清单:
+  最低配置:
+    Android:
+      - 高端机: Samsung S系列 / Xiaomi 数字系列
+      - 中端机: Samsung A系列 / Redmi Note系列
+      - 最低版本: Android 9 (API 28)
+    iOS:
+      - 最新款: iPhone 15系列
+      - 旧款: iPhone 12/13系列
+      - 最低版本: iOS 14
+
+网络测试工具:
+  - Charles Proxy: 网络抓包和模拟
+  - Network Link Conditioner: 弱网模拟(iOS)
+  - Clumsy: Windows弱网模拟

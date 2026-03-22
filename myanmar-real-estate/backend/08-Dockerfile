@@ -1,0 +1,55 @@
+# 缅甸房产平台后端服务 Dockerfile
+# 多阶段构建
+
+# 第一阶段：构建
+FROM golang:1.25-alpine AS builder
+
+# 安装构建依赖
+RUN apk add --no-cache git tzdata
+
+# Allow Go to auto-download required toolchain version
+ENV GOTOOLCHAIN=auto
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制go.mod和go.sum
+COPY go.mod go.sum ./
+RUN go mod download
+
+# 复制源代码
+COPY . .
+
+# 构建应用
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/server
+
+# 第二阶段：运行
+FROM alpine:latest
+
+# 安装运行时依赖
+RUN apk --no-cache add ca-certificates tzdata
+
+# 设置时区
+ENV TZ=Asia/Yangon
+
+# 创建工作目录
+WORKDIR /app
+
+# 从builder复制二进制文件
+COPY --from=builder /app/main .
+
+# 复制配置文件
+COPY --from=builder /app/config.yaml .
+
+# 创建日志目录
+RUN mkdir -p /app/logs
+
+# 暴露端口
+EXPOSE 8080
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+
+# 运行应用
+CMD ["./main"]

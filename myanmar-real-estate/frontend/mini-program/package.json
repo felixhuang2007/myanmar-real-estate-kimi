@@ -1,0 +1,21 @@
+{
+  "name": "myanmarhome-mini",
+  "version": "1.0.0",
+  "description": "缅甸房产平台微信小程序",
+  "main": "app.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "miniprogram-api-typings": "^3.12.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0"
+  },
+  "license": "MIT"
+}
