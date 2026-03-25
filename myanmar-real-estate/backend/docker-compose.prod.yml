@@ -96,7 +96,7 @@ services:
       - MYANMAR_PROPERTY_REDIS_PORT=6379
       - MYANMAR_PROPERTY_REDIS_PASSWORD=${REDIS_PASSWORD:-myanmar_redis_2024}
       - MYANMAR_PROPERTY_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:-default_jwt_secret_change_me}
     depends_on:
       postgres:
         condition: service_healthy
