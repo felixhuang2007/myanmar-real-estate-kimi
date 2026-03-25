@@ -1,5 +1,7 @@
 version: '3.8'
 
+# 适用于 2核2G 低配服务器的配置（无Elasticsearch，搜索功能将使用数据库LIKE查询）
+
 services:
   # PostgreSQL
   postgres:
@@ -15,7 +17,6 @@ services:
       - ./01-database-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     networks:
       - myanmar_net
-    # 测试环境内存限制
     deploy:
       resources:
         limits:
@@ -38,7 +39,6 @@ services:
       - redis_data:/data
     networks:
       - myanmar_net
-    # 测试环境内存限制
     deploy:
       resources:
         limits:
@@ -51,33 +51,7 @@ services:
       timeout: 3s
       retries: 5
 
-  # Elasticsearch
-  elasticsearch:
-    image: elasticsearch:8.12.0
-    container_name: myanmar_elasticsearch
-    restart: always
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
-    volumes:
-      - es_data:/usr/share/elasticsearch/data
-    networks:
-      - myanmar_net
-    # 测试环境内存限制（2G服务器请取消注释）
-    deploy:
-      resources:
-        limits:
-          memory: 768M
-        reservations:
-          memory: 512M
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  # Go API
+  # Go API（无ES配置）
   api:
     build:
       context: .
@@ -95,7 +69,7 @@ services:
       - MYANMAR_PROPERTY_REDIS_HOST=redis
       - MYANMAR_PROPERTY_REDIS_PORT=6379
       - MYANMAR_PROPERTY_REDIS_PASSWORD=${REDIS_PASSWORD:-myanmar_redis_2024}
-      - MYANMAR_PROPERTY_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - MYANMAR_PROPERTY_ELASTICSEARCH_HOSTS=      # 留空，不使用ES
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
       postgres:
@@ -106,7 +80,6 @@ services:
       - uploads_data:/app/uploads
     networks:
       - myanmar_net
-    # 测试环境内存限制
     deploy:
       resources:
         limits:
@@ -128,7 +101,6 @@ services:
     restart: always
     networks:
       - myanmar_net
-    # 测试环境内存限制
     deploy:
       resources:
         limits:
@@ -151,7 +123,6 @@ services:
       - web-admin
     networks:
       - myanmar_net
-    # 测试环境内存限制
     deploy:
       resources:
         limits:
@@ -162,7 +133,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  es_data:
   uploads_data:
 
 networks:
