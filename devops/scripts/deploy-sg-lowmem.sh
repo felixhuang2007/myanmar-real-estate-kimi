@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-PROJECT_DIR="/opt/myanmarestate/myanmar-real-estate-kimi"
+PROJECT_DIR="/home/ubuntu/myanmarestate/myanmar-real-estate-kimi"
 BACKEND_DIR="$PROJECT_DIR/myanmar-real-estate/backend"
 ENV_FILE="$BACKEND_DIR/.env.prod"
 

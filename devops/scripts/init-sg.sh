@@ -28,6 +28,6 @@ sysctl -w fs.file-max=100000
 echo "fs.file-max=100000" >> /etc/sysctl.conf
 
 # 项目目录
-mkdir -p /opt/myanmarestate
+mkdir -p /home/ubuntu/myanmarestate
 
-echo "=== Init complete. 下一步: git clone 项目到 /opt/myanmarestate ==="
+echo "=== Init complete. 下一步: git clone 项目到 /home/ubuntu/myanmarestate ==="
