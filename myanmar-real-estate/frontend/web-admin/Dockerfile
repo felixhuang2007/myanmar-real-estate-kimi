@@ -6,7 +6,7 @@ COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 
 COPY . .
-RUN ./node_modules/.bin/umi build
+RUN chmod +x ./node_modules/.bin/umi && ./node_modules/.bin/umi build
 
 # Stage 2: serve
 FROM nginx:alpine
