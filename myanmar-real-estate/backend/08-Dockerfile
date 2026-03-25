@@ -38,9 +38,6 @@ WORKDIR /app
 # 从builder复制二进制文件
 COPY --from=builder /app/main .
 
-# 复制配置文件（如果不存在则使用环境变量）
-COPY --from=builder /app/config*.yaml ./ 2>/dev/null || true
-
 # 创建日志目录
 RUN mkdir -p /app/logs
 
