@@ -31,13 +31,13 @@ print_header() {
 
 print_success() {
     echo -e "${GREEN}[PASS]${NC} $1"
-    ((PASSED++))
+    PASSED=$((PASSED + 1))
 }
 
 print_failure() {
     echo -e "${RED}[FAIL]${NC} $1"
     echo -e "${RED}       Error: $2${NC}"
-    ((FAILED++))
+    FAILED=$((FAILED + 1))
 }
 
 # 测试 1: Docker 服务状态
