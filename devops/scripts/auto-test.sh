@@ -18,6 +18,10 @@ FAILED=0
 SERVER_IP="${SERVER_IP:-43.163.122.42}"
 BASE_URL="http://localhost"
 
+# 密码配置（从环境变量读取，或使用默认值）
+DB_PASSWORD="${DB_PASSWORD:-myanmar_property_2024}"
+REDIS_PASSWORD="${REDIS_PASSWORD:-myanmar_redis_2024}"
+
 # 测试输出函数
 print_header() {
     echo -e "\n${YELLOW}==============================================${NC}"
@@ -115,7 +119,7 @@ test_database() {
 test_redis() {
     print_header "测试 5: Redis 连通性"
 
-    RESULT=$(sudo docker exec myanmar_redis redis-cli ping 2>&1)
+    RESULT=$(sudo docker exec myanmar_redis redis-cli -a "$REDIS_PASSWORD" ping 2>&1)
 
     if [ "$RESULT" = "PONG" ]; then
         print_success "Redis 连接正常"
@@ -198,14 +202,26 @@ test_send_code() {
     elif [ "$HTTP_CODE" = "429" ]; then
         print_failure "POST 发送验证码失败" "请求过于频繁"
         return 1
+    elif [ "$HTTP_CODE" = "500" ]; then
+        print_failure "POST 发送验证码失败" "服务器内部错误 (500)"
+        echo -e "${YELLOW}[INFO] 正在诊断问题...${NC}"
+
+        # 检查 sms_verification_codes 表是否存在
+        TABLE_EXISTS=$(sudo docker exec myanmar_postgres psql -U myanmar_property -d myanmar_property -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'sms_verification_codes');" 2>&1 | grep -E "(t|f)$" | tr -d ' ')
+        if [ "$TABLE_EXISTS" = "t" ]; then
+            echo -e "${YELLOW}       - sms_verification_codes 表: 存在${NC}"
+        else
+            echo -e "${RED}       - sms_verification_codes 表: 不存在!${NC}"
+        fi
+
+        # 检查 API 日志
+        echo -e "${YELLOW}[INFO] 最近 API 日志:${NC}"
+        cd ~/myanmarestate/myanmar-real-estate-kimi/myanmar-real-estate/backend 2>/dev/null || true
+        sudo docker-compose -f docker-compose.prod.yml logs --tail=20 api 2>&1 | tail -10 || true
+
+        return 1
     else
         print_failure "POST 发送验证码失败" "HTTP $HTTP_CODE - $BODY"
-
-        # 查看 API 日志
-        echo -e "${YELLOW}[INFO] 查看 API 日志...${NC}"
-        cd ~/myanmarestate/myanmar-real-estate-kimi/myanmar-real-estate/backend
-        sudo docker-compose -f docker-compose.prod.yml logs --tail=10 api 2>&1 | tail -5
-
         return 1
     fi
 }
