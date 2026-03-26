@@ -134,6 +134,20 @@ func LoadConfig(configPath string) (*Config, error) {
 	viper.SetEnvPrefix("MYANMAR_PROPERTY")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
+
+	// 显式绑定关键环境变量（确保嵌套结构体能正确解析）
+	viper.BindEnv("database.host", "MYANMAR_PROPERTY_DATABASE_HOST")
+	viper.BindEnv("database.port", "MYANMAR_PROPERTY_DATABASE_PORT")
+	viper.BindEnv("database.user", "MYANMAR_PROPERTY_DATABASE_USER")
+	viper.BindEnv("database.password", "MYANMAR_PROPERTY_DATABASE_PASSWORD")
+	viper.BindEnv("database.database", "MYANMAR_PROPERTY_DATABASE_DATABASE")
+	viper.BindEnv("database.ssl_mode", "MYANMAR_PROPERTY_DATABASE_SSL_MODE")
+	viper.BindEnv("redis.host", "MYANMAR_PROPERTY_REDIS_HOST")
+	viper.BindEnv("redis.port", "MYANMAR_PROPERTY_REDIS_PORT")
+	viper.BindEnv("redis.password", "MYANMAR_PROPERTY_REDIS_PASSWORD")
+	viper.BindEnv("elasticsearch.hosts", "MYANMAR_PROPERTY_ELASTICSEARCH_HOSTS")
+	viper.BindEnv("environment", "MYANMAR_PROPERTY_ENVIRONMENT")
+	viper.BindEnv("server.port", "MYANMAR_PROPERTY_SERVER_PORT")
 	
 	// 默认值
 	setDefaults()
