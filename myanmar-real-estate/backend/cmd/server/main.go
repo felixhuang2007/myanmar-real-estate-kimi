@@ -75,7 +75,11 @@ func main() {
 	db, err := common.InitDB(config)
 	if err != nil {
 		common.Warn("数据库初始化失败，运行在无数据库模式", common.ErrorField(err))
+		fmt.Printf("[ERROR] 数据库初始化失败: %v\n", err) // 添加显式输出
 		db = nil
+	} else {
+		common.Info("数据库初始化成功")
+		fmt.Println("[INFO] 数据库初始化成功") // 添加显式输出
 	}
 
 	// 初始化Redis（失败时继续运行）
@@ -198,8 +202,10 @@ func main() {
 // initUserModule 初始化用户模块
 func initUserModule(r *gin.RouterGroup, db *gorm.DB, config *common.Config, rdb *redis.Client) {
 	if db == nil {
+		fmt.Println("[WARN] initUserModule: db is nil, skipping user module initialization")
 		return // 无数据库模式跳过
 	}
+	fmt.Println("[INFO] initUserModule: initializing user module...")
 	// 初始化依赖
 	userRepo := userRepository.NewUserRepository(db)
 	jwtSvc := userService.NewJWTService(config)
@@ -209,6 +215,7 @@ func initUserModule(r *gin.RouterGroup, db *gorm.DB, config *common.Config, rdb 
 
 	// 注册路由
 	userCtrl.RegisterRoutes(r)
+	fmt.Println("[INFO] initUserModule: user module routes registered")
 }
 
 // requestIDMiddleware 请求ID中间件
