@@ -20,7 +20,7 @@ BASE_URL="http://localhost"
 
 # 密码配置（从环境变量读取，或使用默认值）
 DB_PASSWORD="${DB_PASSWORD:-myanmar_property_2024}"
-REDIS_PASSWORD="${REDIS_PASSWORD:-myanmar_redis_2024}"
+REDIS_PASSWORD="${REDIS_PASSWORD:-SkNhYd13SunFkaGjlgBsVA==}"
 
 # 测试输出函数
 print_header() {
