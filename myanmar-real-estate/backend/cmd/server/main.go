@@ -197,6 +197,9 @@ func main() {
 
 // initUserModule 初始化用户模块
 func initUserModule(r *gin.RouterGroup, db *gorm.DB, config *common.Config, rdb *redis.Client) {
+	if db == nil {
+		return // 无数据库模式跳过
+	}
 	// 初始化依赖
 	userRepo := userRepository.NewUserRepository(db)
 	jwtSvc := userService.NewJWTService(config)
@@ -275,12 +278,18 @@ func corsMiddleware() gin.HandlerFunc {
 
 // initDashboardModule 初始化仪表盘模块
 func initDashboardModule(r *gin.RouterGroup, db *gorm.DB) {
+	if db == nil {
+		return // 无数据库模式跳过
+	}
 	dashboardCtrl := userController.NewDashboardController(db)
 	dashboardCtrl.RegisterDashboardRoutes(r)
 }
 
 // initAdminModule 初始化管理员模块
 func initAdminModule(r *gin.RouterGroup, db *gorm.DB) {
+	if db == nil {
+		return // 无数据库模式跳过
+	}
 	adminCtrl := userController.NewAdminController(db)
 	adminCtrl.RegisterAdminRoutes(r)
 }
