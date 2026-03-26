@@ -31,7 +31,7 @@ export async function adminLogin(phone: string, code: string): Promise<ILoginRes
  * 获取当前用户信息
  */
 export async function getCurrentUser(): Promise<IUser> {
-  return http.get('/admin/user/current');
+  return http.get('/admin/current');
 }
 
 /**

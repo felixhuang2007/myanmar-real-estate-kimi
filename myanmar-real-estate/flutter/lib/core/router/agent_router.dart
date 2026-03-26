@@ -121,7 +121,17 @@ final agentRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
 
-          // 我的
+          // 日程（Tab index 3）
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/agent/schedule',
+                builder: (context, state) => const ShowingSchedulePage(),
+              ),
+            ],
+          ),
+
+          // 设置/我的（Tab index 4）
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -147,12 +157,6 @@ final agentRouterProvider = Provider<GoRouter>((ref) {
               int.tryParse(state.pathParameters['id'] ?? '0') ?? 0;
           return VerificationExecutePage(taskId: id);
         },
-      ),
-
-      // 带看日程
-      GoRoute(
-        path: '/agent/schedule',
-        builder: (context, state) => const ShowingSchedulePage(),
       ),
 
       // ACN成交申报

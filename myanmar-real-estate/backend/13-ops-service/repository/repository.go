@@ -32,7 +32,7 @@ func (r *bannerRepository) List(ctx context.Context, position, status string, pa
 		query = query.Where("position = ?", position)
 	}
 	if status != "" {
-		query = query.Where("status = ?", status)
+		query = query.Where("is_active = ?", status == "active")
 	}
 	var total int64
 	query.Count(&total)
@@ -64,5 +64,6 @@ func (r *bannerRepository) Delete(ctx context.Context, id int64) error {
 }
 
 func (r *bannerRepository) UpdateStatus(ctx context.Context, id int64, status string) error {
-	return r.db.WithContext(ctx).Model(&model.Banner{}).Where("id = ?", id).Update("status", status).Error
+	isActive := status == "active"
+	return r.db.WithContext(ctx).Model(&model.Banner{}).Where("id = ?", id).Update("is_active", isActive).Error
 }

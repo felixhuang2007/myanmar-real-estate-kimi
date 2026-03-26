@@ -22,12 +22,11 @@ type BannerService interface {
 type CreateBannerRequest struct {
 	Title     string     `json:"title" binding:"required"`
 	ImageURL  string     `json:"image_url" binding:"required"`
-	LinkURL   string     `json:"link_url"`
+	LinkValue string     `json:"link_value"`
 	LinkType  string     `json:"link_type"`
-	LinkID    *int64     `json:"link_id"`
 	Position  string     `json:"position"`
 	SortOrder int        `json:"sort_order"`
-	Status    string     `json:"status"`
+	IsActive  *bool      `json:"is_active"`
 	StartAt   *time.Time `json:"start_at"`
 	EndAt     *time.Time `json:"end_at"`
 }
@@ -36,12 +35,11 @@ type CreateBannerRequest struct {
 type UpdateBannerRequest struct {
 	Title     string     `json:"title"`
 	ImageURL  string     `json:"image_url"`
-	LinkURL   string     `json:"link_url"`
+	LinkValue string     `json:"link_value"`
 	LinkType  string     `json:"link_type"`
-	LinkID    *int64     `json:"link_id"`
 	Position  string     `json:"position"`
 	SortOrder *int       `json:"sort_order"`
-	Status    string     `json:"status"`
+	IsActive  *bool      `json:"is_active"`
 	StartAt   *time.Time `json:"start_at"`
 	EndAt     *time.Time `json:"end_at"`
 }
@@ -77,20 +75,19 @@ func (s *bannerService) CreateBanner(ctx context.Context, req *CreateBannerReque
 	if position == "" {
 		position = "home"
 	}
-	status := req.Status
-	if status == "" {
-		status = "active"
+	isActive := true
+	if req.IsActive != nil {
+		isActive = *req.IsActive
 	}
 
 	banner := &model.Banner{
 		Title:     req.Title,
 		ImageURL:  req.ImageURL,
-		LinkURL:   req.LinkURL,
+		LinkValue: req.LinkValue,
 		LinkType:  linkType,
-		LinkID:    req.LinkID,
 		Position:  position,
 		SortOrder: req.SortOrder,
-		Status:    status,
+		IsActive:  isActive,
 		StartAt:   req.StartAt,
 		EndAt:     req.EndAt,
 	}
@@ -112,14 +109,11 @@ func (s *bannerService) UpdateBanner(ctx context.Context, id int64, req *UpdateB
 	if req.ImageURL != "" {
 		banner.ImageURL = req.ImageURL
 	}
-	if req.LinkURL != "" {
-		banner.LinkURL = req.LinkURL
+	if req.LinkValue != "" {
+		banner.LinkValue = req.LinkValue
 	}
 	if req.LinkType != "" {
 		banner.LinkType = req.LinkType
-	}
-	if req.LinkID != nil {
-		banner.LinkID = req.LinkID
 	}
 	if req.Position != "" {
 		banner.Position = req.Position
@@ -127,8 +121,8 @@ func (s *bannerService) UpdateBanner(ctx context.Context, id int64, req *UpdateB
 	if req.SortOrder != nil {
 		banner.SortOrder = *req.SortOrder
 	}
-	if req.Status != "" {
-		banner.Status = req.Status
+	if req.IsActive != nil {
+		banner.IsActive = *req.IsActive
 	}
 	if req.StartAt != nil {
 		banner.StartAt = req.StartAt

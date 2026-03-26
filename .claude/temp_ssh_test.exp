@@ -1,0 +1,14 @@
+#!/usr/bin/expect -f
+set password "Rh[HS#)6Z$YNs8bw"
+set server "43.163.122.42"
+set user "ubuntu"
+
+spawn ssh -o StrictHostKeyChecking=no $user@$server
+expect "password:"
+send "$password\r"
+expect "$ "
+
+# 执行命令
+cd ~/myanmarestate/myanmar-real-estate-kimi
+git pull origin master
+bash devops/scripts/run-all-tests.sh --full

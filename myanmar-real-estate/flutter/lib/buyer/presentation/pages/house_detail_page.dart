@@ -148,33 +148,37 @@ class _HouseDetailPageState extends ConsumerState<HouseDetailPage> {
   Widget _buildImageGallery(BuildContext context, House house) {
     final images = house.images;
     final imageUrls = images.map((img) => img.url).toList();
-    if (imageUrls.isEmpty) {
-      imageUrls.add('https://via.placeholder.com/400x300');
-    }
 
     return Stack(
       children: [
         // 图片轮播
         SizedBox(
           height: 280,
-          child: PageView.builder(
-            itemCount: imageUrls.length,
-            onPageChanged: (index) {
-              setState(() {
-                _currentImageIndex = index;
-              });
-            },
-            itemBuilder: (context, index) {
-              return Image.network(
-                imageUrls[index],
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+          child: imageUrls.isEmpty
+              ? Container(
                   color: AppColors.gray200,
-                  child: Icon(Icons.image, size: 48, color: AppColors.gray400),
+                  child: const Center(
+                    child: Icon(Icons.image, size: 64, color: AppColors.gray400),
+                  ),
+                )
+              : PageView.builder(
+                  itemCount: imageUrls.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentImageIndex = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    return Image.network(
+                      imageUrls[index],
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: AppColors.gray200,
+                        child: const Icon(Icons.image, size: 48, color: AppColors.gray400),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
 
         // 渐变遮罩

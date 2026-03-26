@@ -79,4 +79,4 @@ export async function getHouseStats(): Promise<{
  * @param params 查询参数
  */
 export const getVerificationTasks = (params: any) =>
-  http.get<{ list: any[]; total: number }>('/admin/verification/tasks', { params });
+  http.get<{ list: any[]; total: number }>('/verification/tasks', { params });

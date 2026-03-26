@@ -4,9 +4,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/models/house.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../providers/house_provider.dart';
 
 class AgentHouseManagePage extends ConsumerStatefulWidget {
   const AgentHouseManagePage({super.key});
@@ -23,6 +25,8 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    // 加载房源数据
+    Future.microtask(() => ref.read(agentHouseListProvider.notifier).load(refresh: true));
   }
 
   @override
@@ -61,7 +65,7 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildHouseList('all'),
+          _buildHouseList(null),
           _buildHouseList('online'),
           _buildHouseList('pending'),
           _buildHouseList('offline'),
@@ -79,57 +83,59 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
     );
   }
 
-  Widget _buildHouseList(String status) {
-    // 模拟数据
-    final mockHouses = [
-      {
-        'title': '仰光Tamwe区精装3室公寓',
-        'price': '15,000万',
-        'area': '120㎡',
-        'rooms': '3室2厅',
-        'status': 'online',
-        'views': 328,
-        'inquiries': 12,
-      },
-      {
-        'title': 'Bahan区别墅带花园',
-        'price': '35,000万',
-        'area': '280㎡',
-        'rooms': '5室3厅',
-        'status': 'verifying',
-        'views': 156,
-        'inquiries': 5,
-      },
-      {
-        'title': 'Yankin区单身公寓',
-        'price': '8,000万',
-        'area': '65㎡',
-        'rooms': '1室1厅',
-        'status': 'offline',
-        'views': 89,
-        'inquiries': 2,
-      },
-    ];
+  Widget _buildHouseList(String? statusFilter) {
+    final houseState = ref.watch(agentHouseListProvider);
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: mockHouses.length,
-      itemBuilder: (context, index) {
-        return _buildHouseCard(context, mockHouses[index]);
-      },
+    if (houseState.isLoading && houseState.houses.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (houseState.error != null && houseState.houses.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(houseState.error!, style: const TextStyle(color: AppColors.gray600)),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () => ref.read(agentHouseListProvider.notifier).refresh(),
+              child: const Text('重试'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final houses = statusFilter == null
+        ? houseState.houses
+        : houseState.houses.where((h) => h.status == statusFilter).toList();
+
+    if (houses.isEmpty) {
+      return const Center(child: Text('暂无房源', style: TextStyle(color: AppColors.gray500)));
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => ref.read(agentHouseListProvider.notifier).refresh(),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: houses.length,
+        itemBuilder: (context, index) {
+          return _buildHouseCard(context, houses[index]);
+        },
+      ),
     );
   }
 
-  Widget _buildHouseCard(BuildContext context, Map<String, dynamic> house) {
+  Widget _buildHouseCard(BuildContext context, House house) {
     Color statusColor;
     String statusText;
-    
-    switch (house['status']) {
+
+    switch (house.status) {
       case 'online':
         statusColor = AppColors.green500;
         statusText = '在售';
         break;
-      case 'verifying':
+      case 'pending':
         statusColor = AppColors.orange500;
         statusText = '审核中';
         break;
@@ -137,10 +143,16 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
         statusColor = AppColors.gray500;
         statusText = '已下架';
         break;
+      case 'draft':
+        statusColor = AppColors.gray400;
+        statusText = '草稿';
+        break;
       default:
         statusColor = AppColors.gray500;
-        statusText = '未知';
+        statusText = house.status;
     }
+
+    final stats = house.stats;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -158,12 +170,15 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
               // 图片
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  width: 100,
-                  height: 75,
-                  color: AppColors.gray200,
-                  child: const Icon(Icons.image, color: AppColors.gray400),
-                ),
+                child: house.mainImage != null
+                    ? Image.network(
+                        house.mainImage!,
+                        width: 100,
+                        height: 75,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                      )
+                    : _imagePlaceholder(),
               ),
               const SizedBox(width: 12),
               // 信息
@@ -172,7 +187,7 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      house['title'],
+                      house.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -181,7 +196,7 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${house['area']} · ${house['rooms']}',
+                      '${house.area != null ? "${house.area}㎡" : ""} · ${house.rooms ?? ""}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.gray600,
                           ),
@@ -190,7 +205,7 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
                     Row(
                       children: [
                         Text(
-                          house['price'],
+                          house.formattedPrice,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 color: AppColors.primary700,
                                 fontWeight: FontWeight.bold,
@@ -226,9 +241,9 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStat('浏览', house['views'].toString()),
-              _buildStat('咨询', house['inquiries'].toString()),
-              _buildStat('收藏', '12'),
+              _buildStat('浏览', stats?.viewCount.toString() ?? '0'),
+              _buildStat('咨询', stats?.inquiryCount.toString() ?? '0'),
+              _buildStat('收藏', stats?.favoriteCount.toString() ?? '0'),
             ],
           ),
           const Divider(height: 24),
@@ -259,6 +274,15 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _imagePlaceholder() {
+    return Container(
+      width: 100,
+      height: 75,
+      color: AppColors.gray200,
+      child: const Icon(Icons.image, color: AppColors.gray400),
     );
   }
 

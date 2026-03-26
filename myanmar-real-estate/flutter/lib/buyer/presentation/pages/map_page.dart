@@ -26,6 +26,9 @@ class _MapPageState extends ConsumerState<MapPage> {
   String _selectedClusterName = '';
   int _selectedClusterCount = 0;
 
+  // 筛选条件
+  final Map<String, dynamic> _filters = {};
+
   // 模拟聚合数据
   final List<Map<String, dynamic>> _clusters = [
     {'id': '1', 'lat': 16.8661, 'lng': 96.1951, 'count': 128, 'name': 'Tamwe'},
@@ -190,9 +193,7 @@ class _MapPageState extends ConsumerState<MapPage> {
               children: [
                 _buildMapButton(
                   icon: Icons.filter_list,
-                  onTap: () {
-                    // TODO: open filter sheet
-                  },
+                  onTap: () => _showFilterSheet(context),
                 ),
                 const SizedBox(height: 8),
                 _buildMapButton(
@@ -290,6 +291,121 @@ class _MapPageState extends ConsumerState<MapPage> {
             ),
         ],
       ),
+    );
+  }
+
+  void _showFilterSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        '筛选条件',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          setState(() => _filters.clear());
+                          Navigator.pop(context);
+                        },
+                        child: const Text('重置'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // 价格筛选
+                  Text('价格范围', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: ['不限', '5000万以下', '5000万-1亿', '1亿-2亿', '2亿以上'].map((price) {
+                      final selected = _filters['price'] == price ||
+                          (price == '不限' && _filters['price'] == null);
+                      return ChoiceChip(
+                        label: Text(price),
+                        selected: selected,
+                        onSelected: (_) {
+                          setSheetState(() {});
+                          setState(() {
+                            _filters['price'] = price == '不限' ? null : price;
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  // 房型筛选
+                  Text('房源类型', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: ['不限', '公寓', '别墅', '联排', '土地', '商业'].map((type) {
+                      final selected = _filters['type'] == type ||
+                          (type == '不限' && _filters['type'] == null);
+                      return ChoiceChip(
+                        label: Text(type),
+                        selected: selected,
+                        onSelected: (_) {
+                          setSheetState(() {});
+                          setState(() {
+                            _filters['type'] = type == '不限' ? null : type;
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  // 交易类型
+                  Text('交易类型', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: ['不限', '出售', '出租'].map((txType) {
+                      final selected = _filters['transaction_type'] == txType ||
+                          (txType == '不限' && _filters['transaction_type'] == null);
+                      return ChoiceChip(
+                        label: Text(txType),
+                        selected: selected,
+                        onSelected: (_) {
+                          setSheetState(() {});
+                          setState(() {
+                            _filters['transaction_type'] = txType == '不限' ? null : txType;
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('确认'),
+                    ),
+                  ),
+                  SizedBox(height: MediaQuery.of(context).padding.bottom),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
