@@ -119,9 +119,10 @@ test_database() {
 test_redis() {
     print_header "测试 5: Redis 连通性"
 
-    RESULT=$(sudo docker exec myanmar_redis redis-cli -a "$REDIS_PASSWORD" ping 2>&1 | tail -1)
+    RESULT=$(sudo docker exec myanmar_redis redis-cli -a "$REDIS_PASSWORD" ping 2>&1)
 
-    if [ "$RESULT" = "PONG" ]; then
+    # 检查结果中是否包含 PONG（处理警告信息干扰）
+    if echo "$RESULT" | grep -q "PONG"; then
         print_success "Redis 连接正常"
         return 0
     else
