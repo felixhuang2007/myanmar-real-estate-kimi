@@ -178,10 +178,21 @@ test_send_code() {
         print_success "GET /api/auth/send-verification-code 返回说明"
     fi
 
+    # 使用测试专用手机号
+    TEST_PHONE="+959701234567"
+
+    # 先清理该手机号之前的验证码（避免频率限制）
+    sudo docker exec myanmar_postgres psql -U myanmar_property -d myanmar_property -c "
+        DELETE FROM sms_verification_codes WHERE phone = '$TEST_PHONE';
+    " 2>/dev/null || true
+
+    # 清除Redis频率限制
+    sudo docker exec myanmar_redis redis-cli -a "$REDIS_PASSWORD" DEL "rate_limit:sms:127.0.0.1" 2>/dev/null || true
+
     # 测试 POST 端点（缅甸手机号格式）
     RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/api/auth/send-verification-code" \
         -H "Content-Type: application/json" \
-        -d '{"phone":"+959701234567","type":"login"}')
+        -d "{\"phone\":\"$TEST_PHONE\",\"type\":\"login\"}")
     HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
     BODY=$(echo "$RESPONSE" | sed '$d')
 
@@ -189,12 +200,20 @@ test_send_code() {
         print_success "POST 发送验证码成功"
         echo "       Response: $BODY"
 
-        # 保存验证码用于登录测试
-        CODE=$(echo "$BODY" | grep -o '"code":"[0-9]*"' | cut -d'"' -f4)
+        # 从数据库查询验证码（生产环境不返回在响应中）
+        sleep 1  # 等待数据写入
+        CODE=$(sudo docker exec myanmar_postgres psql -U myanmar_property -d myanmar_property -t -c "
+            SELECT code FROM sms_verification_codes
+            WHERE phone = '$TEST_PHONE' AND type = 'login'
+            ORDER BY created_at DESC LIMIT 1;
+        " 2>/dev/null | tr -d ' \n')
+
         if [ ! -z "$CODE" ]; then
             echo "$CODE" > /tmp/test_verify_code.txt
-            echo "$CODE" > /tmp/test_phone.txt
-            echo -e "${YELLOW}[INFO] 验证码已保存: $CODE${NC}"
+            echo "$TEST_PHONE" > /tmp/test_phone.txt
+            echo -e "${YELLOW}[INFO] 验证码已从数据库获取: $CODE${NC}"
+        else
+            echo -e "${RED}[WARN] 无法从数据库获取验证码${NC}"
         fi
         return 0
     elif [ "$HTTP_CODE" = "400" ]; then
