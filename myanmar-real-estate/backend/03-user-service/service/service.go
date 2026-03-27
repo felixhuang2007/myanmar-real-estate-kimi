@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 
@@ -252,6 +253,7 @@ func (s *userService) Register(ctx context.Context, req *RegisterRequest) (*Auth
 	
 	// 创建用户
 	user := &model.User{
+		UUID:     uuid.New().String(),
 		Phone:    req.Phone,
 		Status:   "active",
 		UserType: "individual",
