@@ -143,13 +143,13 @@ print_header "用户模块 API 测试"
 # TEST-001: 用户注册
 test_user_register() {
     print_subheader "TEST-001: 用户注册"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     RESPONSE=$(http_post "$BASE_URL/api/auth/register" \
         "{\"phone\":\"$TEST_PHONE\",\"code\":\"123456\",\"password\":\"$TEST_PASSWORD\",\"device_id\":\"$TEST_DEVICE_ID\"}")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         print_success "用户注册" "$duration"
@@ -167,13 +167,13 @@ test_user_register() {
 # TEST-002: 发送验证码
 test_user_send_code() {
     print_subheader "TEST-002: 发送验证码"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     RESPONSE=$(http_post "$BASE_URL/api/auth/send-verification-code" \
         "{\"phone\":\"$TEST_PHONE\",\"type\":\"login\"}")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "发送验证码" "$duration"
@@ -192,7 +192,7 @@ test_user_send_code() {
 # TEST-003: 验证码登录
 test_user_login() {
     print_subheader "TEST-003: 验证码登录"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     # 如果没有验证码，使用测试验证码
     local code="${VERIFICATION_CODE:-123456}"
@@ -201,7 +201,7 @@ test_user_login() {
         "{\"phone\":\"$TEST_PHONE\",\"code\":\"$code\",\"device_id\":\"$TEST_DEVICE_ID\"}")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "验证码登录" "$duration"
@@ -217,13 +217,13 @@ test_user_login() {
 # TEST-004: 密码登录
 test_user_password_login() {
     print_subheader "TEST-004: 密码登录"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     RESPONSE=$(http_post "$BASE_URL/api/auth/login-with-password" \
         "{\"phone\":\"$TEST_PHONE\",\"password\":\"$TEST_PASSWORD\",\"device_id\":\"${TEST_DEVICE_ID}_pwd\"}")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "密码登录" "$duration"
@@ -238,7 +238,7 @@ test_user_password_login() {
 # TEST-005: 获取用户信息
 test_user_profile_get() {
     print_subheader "TEST-005: 获取用户信息"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "获取用户信息" "未获取到登录Token"
@@ -248,7 +248,7 @@ test_user_profile_get() {
     RESPONSE=$(http_get "$BASE_URL/api/users/profile" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "获取用户信息" "$duration"
@@ -262,7 +262,7 @@ test_user_profile_get() {
 # TEST-006: 更新用户信息
 test_user_profile_update() {
     print_subheader "TEST-006: 更新用户信息"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "更新用户信息" "未获取到登录Token"
@@ -274,7 +274,7 @@ test_user_profile_update() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "更新用户信息" "$duration"
@@ -288,7 +288,7 @@ test_user_profile_update() {
 # TEST-007: 刷新Token
 test_user_refresh_token() {
     print_subheader "TEST-007: 刷新Token"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$REFRESH_TOKEN" ]; then
         print_skip "刷新Token" "未获取到Refresh Token"
@@ -299,7 +299,7 @@ test_user_refresh_token() {
         "{\"refresh_token\":\"$REFRESH_TOKEN\"}")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "刷新Token" "$duration"
@@ -314,7 +314,7 @@ test_user_refresh_token() {
 # TEST-008: 实名认证提交
 test_user_verification_submit() {
     print_subheader "TEST-008: 实名认证提交"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "实名认证提交" "未获取到登录Token"
@@ -326,7 +326,7 @@ test_user_verification_submit() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     # 实名认证可能需要审核，返回 202 或 200 都算成功
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "202" ]; then
@@ -341,7 +341,7 @@ test_user_verification_submit() {
 # TEST-009: 用户收藏列表
 test_user_favorites() {
     print_subheader "TEST-009: 用户收藏列表"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "用户收藏列表" "未获取到登录Token"
@@ -351,7 +351,7 @@ test_user_favorites() {
     RESPONSE=$(http_get "$BASE_URL/api/users/favorites?page=1&page_size=10" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "用户收藏列表" "$duration"
@@ -371,12 +371,12 @@ print_header "房源模块 API 测试"
 # TEST-010: 房源搜索
 test_house_search() {
     print_subheader "TEST-010: 房源搜索"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     RESPONSE=$(http_get "$BASE_URL/api/houses/search?keyword= condo&page=1&page_size=20")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "房源搜索" "$duration"
@@ -392,7 +392,7 @@ test_house_search() {
 # TEST-011: 房源详情
 test_house_detail() {
     print_subheader "TEST-011: 房源详情"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     # 如果没有房源ID，跳过
     if [ -z "$HOUSE_ID" ]; then
@@ -410,7 +410,7 @@ test_house_detail() {
     RESPONSE=$(http_get "$BASE_URL/api/houses/$HOUSE_ID")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "房源详情" "$duration"
@@ -424,13 +424,13 @@ test_house_detail() {
 # TEST-012: 地图聚合
 test_house_map_aggregate() {
     print_subheader "TEST-012: 地图聚合"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     # 仰光地区坐标范围
     RESPONSE=$(http_get "$BASE_URL/api/houses/map/aggregate?zoom=12&bounds=16.8,96.1|16.9,96.2")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "地图聚合" "$duration"
@@ -444,12 +444,12 @@ test_house_map_aggregate() {
 # TEST-013: 首页推荐
 test_house_recommend() {
     print_subheader "TEST-013: 首页推荐"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     RESPONSE=$(http_get "$BASE_URL/api/houses/recommend?limit=10")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "首页推荐" "$duration"
@@ -463,7 +463,7 @@ test_house_recommend() {
 # TEST-014: 创建房源（需要经纪人权限）
 test_house_create() {
     print_subheader "TEST-014: 创建房源"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "创建房源" "未获取到登录Token"
@@ -475,7 +475,7 @@ test_house_create() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         print_success "创建房源" "$duration"
@@ -493,7 +493,7 @@ test_house_create() {
 # TEST-015: 更新房源
 test_house_update() {
     print_subheader "TEST-015: 更新房源"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "更新房源" "未获取到登录Token"
@@ -510,7 +510,7 @@ test_house_update() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "更新房源" "$duration"
@@ -527,7 +527,7 @@ test_house_update() {
 # TEST-016: 房源下架
 test_house_offline() {
     print_subheader "TEST-016: 房源下架"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "房源下架" "未获取到登录Token"
@@ -542,7 +542,7 @@ test_house_offline() {
     RESPONSE=$(http_post "$BASE_URL/api/houses/$HOUSE_ID/offline" "{}" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "房源下架" "$duration"
@@ -559,7 +559,7 @@ test_house_offline() {
 # TEST-017: 收藏/取消收藏房源
 test_house_favorite() {
     print_subheader "TEST-017: 收藏/取消收藏房源"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "收藏房源" "未获取到登录Token"
@@ -595,7 +595,7 @@ test_house_favorite() {
 # TEST-018: 房源列表（经纪人）
 test_house_list() {
     print_subheader "TEST-018: 房源列表（经纪人）"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "房源列表" "未获取到登录Token"
@@ -605,7 +605,7 @@ test_house_list() {
     RESPONSE=$(http_get "$BASE_URL/api/houses?page=1&page_size=20" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "房源列表" "$duration"
@@ -625,7 +625,7 @@ print_header "IM 模块 API 测试"
 # TEST-019: 会话列表
 test_im_conversations() {
     print_subheader "TEST-019: 会话列表"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "会话列表" "未获取到登录Token"
@@ -635,7 +635,7 @@ test_im_conversations() {
     RESPONSE=$(http_get "$BASE_URL/api/im/conversations?page=1&page_size=20" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "会话列表" "$duration"
@@ -650,7 +650,7 @@ test_im_conversations() {
 # TEST-020: 获取消息
 test_im_messages_get() {
     print_subheader "TEST-020: 获取消息"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "获取消息" "未获取到登录Token"
@@ -672,7 +672,7 @@ test_im_messages_get() {
     RESPONSE=$(http_get "$BASE_URL/api/im/conversations/$CONVERSATION_ID/messages?page=1&page_size=20" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "获取消息" "$duration"
@@ -686,7 +686,7 @@ test_im_messages_get() {
 # TEST-021: 发送消息
 test_im_message_send() {
     print_subheader "TEST-021: 发送消息"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "发送消息" "未获取到登录Token"
@@ -703,7 +703,7 @@ test_im_message_send() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         print_success "发送消息" "$duration"
@@ -717,7 +717,7 @@ test_im_message_send() {
 # TEST-022: 标记消息已读
 test_im_message_read() {
     print_subheader "TEST-022: 标记消息已读"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "标记消息已读" "未获取到登录Token"
@@ -732,7 +732,7 @@ test_im_message_read() {
     RESPONSE=$(http_post "$BASE_URL/api/im/conversations/$CONVERSATION_ID/read" "{}" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "标记消息已读" "$duration"
@@ -746,7 +746,7 @@ test_im_message_read() {
 # TEST-023: 创建会话
 test_im_conversation_create() {
     print_subheader "TEST-023: 创建会话"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "创建会话" "未获取到登录Token"
@@ -759,7 +759,7 @@ test_im_conversation_create() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         print_success "创建会话" "$duration"
@@ -776,7 +776,7 @@ test_im_conversation_create() {
 # TEST-024: 快捷话术列表
 test_im_quick_replies() {
     print_subheader "TEST-024: 快捷话术列表"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "快捷话术列表" "未获取到登录Token"
@@ -786,7 +786,7 @@ test_im_quick_replies() {
     RESPONSE=$(http_get "$BASE_URL/api/im/quick-replies" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "快捷话术列表" "$duration"
@@ -800,7 +800,7 @@ test_im_quick_replies() {
 # TEST-025: 删除会话
 test_im_conversation_delete() {
     print_subheader "TEST-025: 删除会话"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "删除会话" "未获取到登录Token"
@@ -815,7 +815,7 @@ test_im_conversation_delete() {
     RESPONSE=$(http_delete "$BASE_URL/api/im/conversations/$CONVERSATION_ID" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "204" ]; then
         print_success "删除会话" "$duration"
@@ -835,7 +835,7 @@ print_header "预约模块 API 测试"
 # TEST-026: 可预约时间段
 test_appointment_slots() {
     print_subheader "TEST-026: 可预约时间段"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$HOUSE_ID" ]; then
         print_skip "可预约时间段" "无房源ID"
@@ -848,7 +848,7 @@ test_appointment_slots() {
     RESPONSE=$(http_get "$BASE_URL/api/appointments/slots?house_id=$HOUSE_ID&date=$TOMORROW")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "可预约时间段" "$duration"
@@ -862,7 +862,7 @@ test_appointment_slots() {
 # TEST-027: 创建预约
 test_appointment_create() {
     print_subheader "TEST-027: 创建预约"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "创建预约" "未获取到登录Token"
@@ -881,7 +881,7 @@ test_appointment_create() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         print_success "创建预约" "$duration"
@@ -896,7 +896,7 @@ test_appointment_create() {
 # TEST-028: 预约列表
 test_appointment_list() {
     print_subheader "TEST-028: 预约列表"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "预约列表" "未获取到登录Token"
@@ -906,7 +906,7 @@ test_appointment_list() {
     RESPONSE=$(http_get "$BASE_URL/api/appointments?page=1&page_size=20" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "预约列表" "$duration"
@@ -920,7 +920,7 @@ test_appointment_list() {
 # TEST-029: 预约详情
 test_appointment_detail() {
     print_subheader "TEST-029: 预约详情"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "预约详情" "未获取到登录Token"
@@ -935,7 +935,7 @@ test_appointment_detail() {
     RESPONSE=$(http_get "$BASE_URL/api/appointments/$APPOINTMENT_ID" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "预约详情" "$duration"
@@ -949,7 +949,7 @@ test_appointment_detail() {
 # TEST-030: 确认预约
 test_appointment_confirm() {
     print_subheader "TEST-030: 确认预约"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "确认预约" "未获取到登录Token"
@@ -966,7 +966,7 @@ test_appointment_confirm() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "确认预约" "$duration"
@@ -983,7 +983,7 @@ test_appointment_confirm() {
 # TEST-031: 拒绝预约
 test_appointment_reject() {
     print_subheader "TEST-031: 拒绝预约"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "拒绝预约" "未获取到登录Token"
@@ -1000,7 +1000,7 @@ test_appointment_reject() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "拒绝预约" "$duration"
@@ -1020,7 +1020,7 @@ test_appointment_reject() {
 # TEST-032: 完成带看
 test_appointment_complete() {
     print_subheader "TEST-032: 完成带看"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "完成带看" "未获取到登录Token"
@@ -1037,7 +1037,7 @@ test_appointment_complete() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "完成带看" "$duration"
@@ -1057,7 +1057,7 @@ test_appointment_complete() {
 # TEST-033: 取消预约
 test_appointment_cancel() {
     print_subheader "TEST-033: 取消预约"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "取消预约" "未获取到登录Token"
@@ -1074,7 +1074,7 @@ test_appointment_cancel() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "取消预约" "$duration"
@@ -1091,7 +1091,7 @@ test_appointment_cancel() {
 # TEST-034: 带看评价
 test_appointment_review() {
     print_subheader "TEST-034: 带看评价"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "带看评价" "未获取到登录Token"
@@ -1108,7 +1108,7 @@ test_appointment_review() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         print_success "带看评价" "$duration"
@@ -1128,7 +1128,7 @@ test_appointment_review() {
 # TEST-035: 经纪人预约日历
 test_appointment_calendar() {
     print_subheader "TEST-035: 经纪人预约日历"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "经纪人预约日历" "未获取到登录Token"
@@ -1138,7 +1138,7 @@ test_appointment_calendar() {
     RESPONSE=$(http_get "$BASE_URL/api/appointments/calendar?month=$(date +%Y-%m)" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "经纪人预约日历" "$duration"
@@ -1158,7 +1158,7 @@ print_header "ACN 模块 API 测试"
 # TEST-036: 成交申报
 test_deal_create() {
     print_subheader "TEST-036: 成交申报"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "成交申报" "未获取到登录Token"
@@ -1175,7 +1175,7 @@ test_deal_create() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         print_success "成交申报" "$duration"
@@ -1193,7 +1193,7 @@ test_deal_create() {
 # TEST-037: 成交列表
 test_deal_list() {
     print_subheader "TEST-037: 成交列表"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "成交列表" "未获取到登录Token"
@@ -1203,7 +1203,7 @@ test_deal_list() {
     RESPONSE=$(http_get "$BASE_URL/api/acn/deals?page=1&page_size=20" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "成交列表" "$duration"
@@ -1217,7 +1217,7 @@ test_deal_list() {
 # TEST-038: 成交详情
 test_deal_detail() {
     print_subheader "TEST-038: 成交详情"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "成交详情" "未获取到登录Token"
@@ -1232,7 +1232,7 @@ test_deal_detail() {
     RESPONSE=$(http_get "$BASE_URL/api/acn/deals/$DEAL_ID" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "成交详情" "$duration"
@@ -1246,7 +1246,7 @@ test_deal_detail() {
 # TEST-039: 确认成交
 test_deal_confirm() {
     print_subheader "TEST-039: 确认成交"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "确认成交" "未获取到登录Token"
@@ -1263,7 +1263,7 @@ test_deal_confirm() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "确认成交" "$duration"
@@ -1283,7 +1283,7 @@ test_deal_confirm() {
 # TEST-040: 成交申诉
 test_deal_dispute() {
     print_subheader "TEST-040: 成交申诉"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "成交申诉" "未获取到登录Token"
@@ -1300,7 +1300,7 @@ test_deal_dispute() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         print_success "成交申诉" "$duration"
@@ -1320,7 +1320,7 @@ test_deal_dispute() {
 # TEST-041: 佣金余额查询
 test_commission_balance() {
     print_subheader "TEST-041: 佣金余额查询"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "佣金余额查询" "未获取到登录Token"
@@ -1330,7 +1330,7 @@ test_commission_balance() {
     RESPONSE=$(http_get "$BASE_URL/api/acn/commission/balance" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "佣金余额查询" "$duration"
@@ -1345,7 +1345,7 @@ test_commission_balance() {
 # TEST-042: 佣金明细
 test_commission_records() {
     print_subheader "TEST-042: 佣金明细"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "佣金明细" "未获取到登录Token"
@@ -1355,7 +1355,7 @@ test_commission_records() {
     RESPONSE=$(http_get "$BASE_URL/api/acn/commission/records?page=1&page_size=20" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "佣金明细" "$duration"
@@ -1369,7 +1369,7 @@ test_commission_records() {
 # TEST-043: 分佣角色设置
 test_acn_roles() {
     print_subheader "TEST-043: 分佣角色设置"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "分佣角色设置" "未获取到登录Token"
@@ -1386,7 +1386,7 @@ test_acn_roles() {
         "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "分佣角色设置" "$duration"
@@ -1409,12 +1409,12 @@ print_header "公共模块 API 测试"
 # TEST-044: 健康检查
 test_health_check() {
     print_subheader "TEST-044: 健康检查"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     RESPONSE=$(http_get "$BASE_URL/health")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "健康检查" "$duration"
@@ -1428,7 +1428,7 @@ test_health_check() {
 # TEST-045: 上传配置
 test_upload_config() {
     print_subheader "TEST-045: 上传配置"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "上传配置" "未获取到登录Token"
@@ -1438,7 +1438,7 @@ test_upload_config() {
     RESPONSE=$(http_get "$BASE_URL/api/upload/config" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "上传配置" "$duration"
@@ -1452,12 +1452,12 @@ test_upload_config() {
 # TEST-046: 城市列表
 test_cities_list() {
     print_subheader "TEST-046: 城市列表"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     RESPONSE=$(http_get "$BASE_URL/api/cities")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ]; then
         print_success "城市列表" "$duration"
@@ -1471,7 +1471,7 @@ test_cities_list() {
 # TEST-047: 退出登录
 test_user_logout() {
     print_subheader "TEST-047: 退出登录"
-    local start=$(date +%s%N)
+    local start=$(($(date +%s * 1000)))
 
     if [ -z "$TOKEN" ]; then
         print_skip "退出登录" "未获取到登录Token"
@@ -1481,7 +1481,7 @@ test_user_logout() {
     RESPONSE=$(http_post "$BASE_URL/api/auth/logout" "{}" "Authorization: Bearer $TOKEN")
     extract_response "$RESPONSE" BODY
 
-    local duration=$(( ($(date +%s%N) - start) / 1000000 ))ms
+    local end=$(($(date +%s * 1000))); local duration=$((end - start))ms
 
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "204" ]; then
         print_success "退出登录" "$duration"
