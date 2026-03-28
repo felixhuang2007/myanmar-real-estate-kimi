@@ -28,23 +28,11 @@ func NewHouseController(houseService service.HouseService) *HouseController {
 func (c *HouseController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.JWTService, rdb *redis.Client) {
 	auth := userController.AuthMiddleware(jwtSvc, rdb)
 
-	// 公开接口
-	houses := r.Group("/houses")
-	{
-		houses.GET("/recommendations", c.GetRecommendations)
-		houses.GET("/search", c.Search)
-		houses.GET("/map-search", c.MapSearch)
-		houses.GET("/cities", c.GetCities)
-		houses.GET("/districts", c.GetDistricts)
-		houses.GET("/communities", c.GetCommunities)
-		houses.GET("/:id", c.GetHouseDetail)
-		houses.GET("/:id/similar", c.GetSimilarHouses)
-	}
-
-	// 需要认证的经纪人接口
+	// 需要认证的经纪人接口 - 必须先注册，确保静态路由优先匹配
 	agentHouses := r.Group("/houses")
 	agentHouses.Use(auth)
 	{
+		// 静态路由必须在参数路由之前注册
 		agentHouses.GET("/my", c.GetMyHouses)
 		agentHouses.POST("", c.CreateHouse)
 		agentHouses.PUT("/:id", c.UpdateHouse)
@@ -55,6 +43,19 @@ func (c *HouseController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.
 		agentHouses.POST("/:id/images", c.AddHouseImage)
 		agentHouses.DELETE("/:id/images/:image_id", c.DeleteHouseImage)
 		agentHouses.PUT("/:id/images/:image_id/main", c.SetMainImage)
+	}
+
+	// 公开接口 - 注册在认证接口之后
+	houses := r.Group("/houses")
+	{
+		houses.GET("/recommendations", c.GetRecommendations)
+		houses.GET("/search", c.Search)
+		houses.GET("/map-search", c.MapSearch)
+		houses.GET("/cities", c.GetCities)
+		houses.GET("/districts", c.GetDistricts)
+		houses.GET("/communities", c.GetCommunities)
+		houses.GET("/:id", c.GetHouseDetail)
+		houses.GET("/:id/similar", c.GetSimilarHouses)
 	}
 }
 

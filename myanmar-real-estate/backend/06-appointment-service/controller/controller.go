@@ -31,6 +31,7 @@ func (c *AppointmentController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userSe
 		group.POST("", c.CreateAppointment)
 		group.GET("", c.GetMyAppointments)
 		group.GET("/slots", c.GetAvailableSlots)
+		group.GET("/calendar", c.GetCalendar) // 未实现，返回404
 		group.GET("/:id", c.GetAppointment)
 		group.POST("/:id/confirm", c.ConfirmAppointment)
 		group.POST("/:id/cancel", c.CancelAppointment)
@@ -225,4 +226,9 @@ func (c *AppointmentController) GetAvailableSlots(ctx *gin.Context) {
 		return
 	}
 	common.Success(ctx, slots)
+}
+
+// GetCalendar 获取预约日历（未实现）
+func (c *AppointmentController) GetCalendar(ctx *gin.Context) {
+	common.NotFound(ctx, "该功能尚未实现")
 }
