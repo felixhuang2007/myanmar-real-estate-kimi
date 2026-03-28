@@ -30,6 +30,7 @@ type UserService interface {
 	
 	// 用户资料
 	GetCurrentUser(ctx context.Context, userID int64) (*UserInfo, error)
+	GetUserByID(ctx context.Context, userID int64) (*UserInfo, error)  // 添加获取指定用户方法
 	UpdateProfile(ctx context.Context, userID int64, req *UpdateProfileRequest) error
 	UploadAvatar(ctx context.Context, userID int64, fileData []byte, fileName string) (string, error)
 	ChangePassword(ctx context.Context, userID int64, req *ChangePasswordRequest) error
@@ -497,6 +498,36 @@ func (s *userService) GetCurrentUser(ctx context.Context, userID int64) (*UserIn
 		}
 	}
 	
+	return info, nil
+}
+
+// GetUserByID 获取指定用户信息（公开接口，返回有限信息）
+func (s *userService) GetUserByID(ctx context.Context, userID int64) (*UserInfo, error) {
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return nil, common.NewError(common.ErrCodeInternalServer, err.Error())
+	}
+
+	if user == nil {
+		return nil, common.NewError(common.ErrCodeUserNotFound)
+	}
+
+	// 只返回公开信息
+	info := &UserInfo{
+		UserID: user.ID,
+		UUID:   user.UUID,
+		Status: user.Status,
+	}
+
+	// 只有认证用户才显示名字
+	if user.Verification != nil && user.Verification.IsApproved() {
+		info.IsVerified = true
+		info.Verification = &VerificationInfo{
+			RealName: user.Verification.RealName,
+			Status:   user.Verification.Status,
+		}
+	}
+
 	return info, nil
 }
 

@@ -48,6 +48,7 @@ func (c *HouseController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.
 	// 公开接口 - 注册在认证接口之后
 	houses := r.Group("/houses")
 	{
+		houses.GET("", c.ListHouses)  // 添加房源列表接口
 		houses.GET("/recommendations", c.GetRecommendations)
 		houses.GET("/search", c.Search)
 		houses.GET("/map-search", c.MapSearch)
@@ -93,6 +94,44 @@ func (c *HouseController) GetRecommendations(ctx *gin.Context) {
 			"page_size": pageSize,
 			"total":     total,
 			"has_more":  total > int64(page*pageSize),
+		},
+	})
+}
+
+// ListHouses 获取房源列表（简化版搜索）
+func (c *HouseController) ListHouses(ctx *gin.Context) {
+	params := &service.HouseSearchParams{
+		CityCode:        ctx.Query("city_code"),
+		TransactionType: ctx.Query("transaction_type"),
+	}
+
+	params.Page, _ = strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	params.PageSize, _ = strconv.Atoi(ctx.DefaultQuery("page_size", "20"))
+
+	if params.Page <= 0 {
+		params.Page = 1
+	}
+	if params.PageSize <= 0 || params.PageSize > 100 {
+		params.PageSize = 20
+	}
+
+	houses, total, err := c.houseService.Search(ctx, params)
+	if err != nil {
+		if appErr, ok := err.(*common.AppError); ok {
+			common.ErrorResponse(ctx, appErr)
+		} else {
+			common.ServerError(ctx)
+		}
+		return
+	}
+
+	common.Success(ctx, gin.H{
+		"list": houses,
+		"pagination": gin.H{
+			"page":      params.Page,
+			"page_size": params.PageSize,
+			"total":     total,
+			"has_more":  total > int64(params.Page*params.PageSize),
 		},
 	})
 }

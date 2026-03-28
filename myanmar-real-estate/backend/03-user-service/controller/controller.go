@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"strconv"
 	"strings"
 	"time"
 
@@ -57,21 +58,24 @@ func (c *UserController) RegisterRoutes(r *gin.RouterGroup) {
 		users.PUT("/me", c.UpdateProfile)
 		users.POST("/me/avatar", c.UploadAvatar)
 		users.PUT("/me/password", c.ChangePassword)
-		
+
 		// 实名认证
 		users.POST("/me/verification", c.SubmitVerification)
 		users.GET("/me/verification", c.GetVerificationStatus)
-		
+
 		// 收藏
 		users.GET("/me/favorites", c.GetFavorites)
 		users.POST("/me/favorites", c.AddFavorite)
 		users.DELETE("/me/favorites/:house_id", c.RemoveFavorite)
 		users.GET("/me/favorites/:house_id/check", c.CheckFavorite)
-		
+
 		// 历史记录
 		users.GET("/me/browsing-history", c.GetBrowsingHistory)
 		users.DELETE("/me/browsing-history", c.ClearBrowsingHistory)
 	}
+
+	// 公开用户接口（不需要认证）
+	r.GET("/users/:id", c.GetUserByID)
 
 	// 经纪人申请接口（需要认证）
 	agent := r.Group("/agent")
@@ -265,6 +269,27 @@ func (c *UserController) GetCurrentUser(ctx *gin.Context) {
 		return
 	}
 	
+	common.Success(ctx, user)
+}
+
+// GetUserByID 获取指定用户信息（公开接口）
+func (c *UserController) GetUserByID(ctx *gin.Context) {
+	userID, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		common.BadRequest(ctx, "无效的用户ID")
+		return
+	}
+
+	user, err := c.userService.GetUserByID(ctx, userID)
+	if err != nil {
+		if appErr, ok := err.(*common.AppError); ok {
+			common.ErrorResponse(ctx, appErr)
+		} else {
+			common.ServerError(ctx)
+		}
+		return
+	}
+
 	common.Success(ctx, user)
 }
 
