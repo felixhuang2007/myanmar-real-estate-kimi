@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -58,6 +59,8 @@ func (c *UserController) RegisterRoutes(r *gin.RouterGroup) {
 		users.PUT("/me", c.UpdateProfile)
 		users.POST("/me/avatar", c.UploadAvatar)
 		users.PUT("/me/password", c.ChangePassword)
+		// 添加修改密码路由别名，兼容前端调用
+		users.POST("/change-password", c.ChangePassword)
 
 		// 实名认证
 		users.POST("/me/verification", c.SubmitVerification)
@@ -68,9 +71,15 @@ func (c *UserController) RegisterRoutes(r *gin.RouterGroup) {
 		users.POST("/me/favorites", c.AddFavorite)
 		users.DELETE("/me/favorites/:house_id", c.RemoveFavorite)
 		users.GET("/me/favorites/:house_id/check", c.CheckFavorite)
+		// 添加收藏路由别名，兼容前端调用
+		users.GET("/favorites", c.GetFavorites)
+		users.POST("/favorites", c.AddFavorite)
 
-		// 历史记录
-		users.GET("/me/browsing-history", c.GetBrowsingHistory)
+		// 用户状态
+		users.GET("/status", c.GetUserStatus)
+
+		// 上传
+		users.POST("/upload/token", c.GetUploadToken)
 		users.DELETE("/me/browsing-history", c.ClearBrowsingHistory)
 	}
 
@@ -571,6 +580,41 @@ func (c *UserController) AgentRegister(ctx *gin.Context) {
 	common.Success(ctx, gin.H{
 		"id":     agent.ID,
 		"status": agent.Status,
+	})
+}
+
+// GetUserStatus 获取用户状态
+func (c *UserController) GetUserStatus(ctx *gin.Context) {
+	userID := ctx.GetInt64("user_id")
+
+	user, err := c.userService.GetCurrentUser(ctx, userID)
+	if err != nil {
+		if appErr, ok := err.(*common.AppError); ok {
+			common.ErrorResponse(ctx, appErr)
+		} else {
+			common.ServerError(ctx)
+		}
+		return
+	}
+
+	common.Success(ctx, gin.H{
+		"user_id":      userID,
+		"status":       user.Status,
+		"is_verified":  user.IsVerified,
+		"is_agent":     false, // 简化实现，实际应查询经纪人表
+	})
+}
+
+// GetUploadToken 获取上传Token（简化实现）
+func (c *UserController) GetUploadToken(ctx *gin.Context) {
+	// 生成临时上传凭证，实际应接入OSS服务（如阿里云OSS、AWS S3等）
+	userID := ctx.GetInt64("user_id")
+
+	common.Success(ctx, gin.H{
+		"token":       fmt.Sprintf("upload_token_%d_%d", userID, time.Now().Unix()),
+		"expire":      3600,
+		"upload_url":  "/v1/users/me/avatar",
+		"key_prefix":  fmt.Sprintf("uploads/%d/", userID),
 	})
 }
 

@@ -286,7 +286,27 @@
       "Bash(C:/Windows/System32/OpenSSH/ssh.exe -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=30 ubuntu@43.163.122.42 \"cd ~/myanmarestate/myanmar-real-estate-kimi && bash devops/scripts/auto-test.sh\" 2>&1)",
       "Bash(C:/Windows/System32/OpenSSH/ssh.exe -o StrictHostKeyChecking=no ubuntu@43.163.122.42 \"cd ~/myanmarestate/myanmar-real-estate-kimi && git pull origin master && cd myanmar-real-estate/backend && docker-compose -f docker-compose.prod.yml restart nginx\" 2>&1)",
       "Bash(C:/Windows/System32/OpenSSH/ssh.exe -o StrictHostKeyChecking=no ubuntu@43.163.122.42 \"cd ~/myanmarestate/myanmar-real-estate-kimi && git pull origin master && cd myanmar-real-estate/backend && sudo docker-compose -f docker-compose.prod.yml restart nginx\" 2>&1)",
-      "Bash(C:/Windows/System32/OpenSSH/ssh.exe -o StrictHostKeyChecking=no ubuntu@43.163.122.42 \"cat ~/myanmarestate/myanmar-real-estate-kimi/myanmar-real-estate/backend/nginx/nginx.conf | grep -n \"send\"\" 2>&1)"
+      "Bash(C:/Windows/System32/OpenSSH/ssh.exe -o StrictHostKeyChecking=no ubuntu@43.163.122.42 \"cat ~/myanmarestate/myanmar-real-estate-kimi/myanmar-real-estate/backend/nginx/nginx.conf | grep -n \"send\"\" 2>&1)",
+      "Bash(scp:*)",
+      "Bash(find D:workmyanmar-real-estate-kimimyanmar-real-estatebackend -name *controller*.go -type f)",
+      "Bash(find /tmp -name *.jsonl -type f)",
+      "Bash(cmd //c \"ssh -o StrictHostKeyChecking=no ubuntu@43.163.122.42 echo test\")",
+      "Bash(cmd //c \"ssh -o StrictHostKeyChecking=no ubuntu@43.163.122.42 \\\\\"cd ~/myanmarestate/myanmar-real-estate-kimi/devops/scripts && bash api-test-suite.sh 2>&1\\\\\"\" 2>&1)",
+      "Bash(gzip -c devops/scripts/api-test-suite.sh)",
+      "Bash(base64 -w0)",
+      "Bash(split:*)",
+      "Bash(SET \"SERVER_IP=43.163.122.42\")",
+      "Bash(SET \"BASE_URL=http://43.163.122.42\")",
+      "Bash(bash api-test-suite.sh --user)",
+      "Bash(bash /d/work/myanmar-real-estate-kimi/devops/scripts/api-test-suite.sh --user)",
+      "Bash(xargs)",
+      "Bash(bash /d/work/myanmar-real-estate-kimi/devops/scripts/api-test-inline.sh 2>&1)",
+      "Bash(:)",
+      "mcp__plugin_claude-mem_mcp-search____IMPORTANT",
+      "mcp__plugin_claude-mem_mcp-search__search",
+      "mcp__plugin_claude-mem_mcp-search__get_observations",
+      "Bash(find . -type f -name *.md -path */qa/* -o -name *testing*)",
+      "Bash(sshpass:*)"
     ]
   }
 }

@@ -1,0 +1,1 @@
+ssh ubuntu@43.163.122.42 "sed -i 's/REDIS_PASSWORD=.*/REDIS_PASSWORD=myanmar_redis_2024/' ~/myanmarestate/myanmar-real-estate-kimi/devops/scripts/auto-test.sh"
