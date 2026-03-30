@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"myanmar-property/backend/07-common"
+	opsConfig "myanmar-property/backend/13-ops-service/config"
 	"myanmar-property/backend/13-ops-service/service"
 )
 
@@ -25,6 +26,7 @@ func (ctrl *OpsController) RegisterRoutes(r *gin.RouterGroup) {
 	public := r.Group("")
 	{
 		public.GET("/regions", ctrl.GetRegions)
+		public.GET("/config", ctrl.GetConfig)
 	}
 
 	// 管理后台路由 - 需要认证
@@ -177,4 +179,20 @@ func (ctrl *OpsController) GetRegions(c *gin.Context) {
 	common.Success(c, gin.H{
 		"regions": regions,
 	})
+}
+
+// GetConfig 获取全局配置
+func (ctrl *OpsController) GetConfig(c *gin.Context) {
+	platform := c.DefaultQuery("platform", "android")
+
+	// 获取默认配置
+	config := opsConfig.GetDefaultConfig()
+
+	// 根据平台返回差异化配置（如有需要）
+	if platform == "ios" {
+		// iOS特定配置
+		config.AppName = "缅甸房产 iOS"
+	}
+
+	common.Success(c, config)
 }
