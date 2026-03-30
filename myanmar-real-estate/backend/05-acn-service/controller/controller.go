@@ -43,6 +43,7 @@ func (c *ACNController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.JW
 		auth.GET("/disputes", c.GetDisputes)
 		auth.GET("/commission/statistics", c.GetCommissionStatistics)
 		auth.GET("/commission/details", c.GetCommissionDetails)
+		auth.GET("/deals", c.GetDeals)
 	}
 }
 
@@ -294,6 +295,56 @@ func (c *ACNController) GetCommissionDetails(ctx *gin.Context) {
 	}
 	common.Success(ctx, gin.H{
 		"list": list,
+		"pagination": gin.H{
+			"page":      page,
+			"page_size": pageSize,
+			"total":     total,
+			"has_more":  total > int64(page*pageSize),
+		},
+	})
+}
+
+// GetDeals C端获取成交列表（简化版）
+func (c *ACNController) GetDeals(ctx *gin.Context) {
+	userID := ctx.GetInt64("user_id")
+	status := ctx.DefaultQuery("status", "")
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("pageSize", "20"))
+
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 || pageSize > 100 {
+		pageSize = 20
+	}
+
+	// 调用service获取成交列表
+	list, total, err := c.service.GetTransactions(ctx, userID, status, page, pageSize)
+	if err != nil {
+		if appErr, ok := err.(*common.AppError); ok {
+			common.ErrorResponse(ctx, appErr)
+		} else {
+			common.ServerError(ctx)
+		}
+		return
+	}
+
+	// 转换为C端简化格式
+	deals := make([]gin.H, 0, len(list))
+	for _, tx := range list {
+		deal := gin.H{
+			"id":          tx.ID,
+			"house_id":    tx.HouseID,
+			"deal_price":  tx.DealPrice,
+			"deal_date":   tx.DealDate,
+			"status":      tx.Status,
+			"created_at":  tx.CreatedAt,
+		}
+		deals = append(deals, deal)
+	}
+
+	common.Success(ctx, gin.H{
+		"list": deals,
 		"pagination": gin.H{
 			"page":      page,
 			"page_size": pageSize,
