@@ -304,7 +304,7 @@ func initAdminModule(r *gin.RouterGroup, db *gorm.DB) {
 // initOpsModule 初始化运营模块（Banner）
 func initOpsModule(r *gin.RouterGroup, db *gorm.DB) {
 	// 创建Controller（支持无数据库模式，公开路由如regions/config仍然可用）
-	var bannerService *opsSvc.BannerService
+	var bannerService opsSvc.BannerService
 	if db != nil {
 		bannerRepo := opsRepository.NewBannerRepository(db)
 		bannerService = opsSvc.NewBannerService(bannerRepo)
