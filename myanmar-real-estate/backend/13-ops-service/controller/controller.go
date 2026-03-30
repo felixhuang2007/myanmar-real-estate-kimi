@@ -22,23 +22,25 @@ func NewOpsController(bannerSvc service.BannerService) *OpsController {
 
 // RegisterRoutes 注册路由（挂载在 /admin 下）
 func (ctrl *OpsController) RegisterRoutes(r *gin.RouterGroup) {
-	// 公开路由 - 无需认证
+	// 公开路由 - 无需认证（始终可用）
 	public := r.Group("")
 	{
 		public.GET("/regions", ctrl.GetRegions)
 		public.GET("/config", ctrl.GetConfig)
 	}
 
-	// 管理后台路由 - 需要认证
-	admin := r.Group("/admin")
-	{
-		banners := admin.Group("/banners")
+	// 管理后台路由 - 需要认证（需要数据库）
+	if ctrl.bannerSvc != nil {
+		admin := r.Group("/admin")
 		{
-			banners.GET("", ctrl.ListBanners)
-			banners.POST("", ctrl.CreateBanner)
-			banners.PUT("/:id", ctrl.UpdateBanner)
-			banners.DELETE("/:id", ctrl.DeleteBanner)
-			banners.PUT("/:id/status", ctrl.UpdateBannerStatus)
+			banners := admin.Group("/banners")
+			{
+				banners.GET("", ctrl.ListBanners)
+				banners.POST("", ctrl.CreateBanner)
+				banners.PUT("/:id", ctrl.UpdateBanner)
+				banners.DELETE("/:id", ctrl.DeleteBanner)
+				banners.PUT("/:id/status", ctrl.UpdateBannerStatus)
+			}
 		}
 	}
 }
