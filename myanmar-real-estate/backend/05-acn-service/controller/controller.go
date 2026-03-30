@@ -43,6 +43,7 @@ func (c *ACNController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.JW
 		auth.GET("/disputes", c.GetDisputes)
 		auth.GET("/commission/statistics", c.GetCommissionStatistics)
 		auth.GET("/commission/details", c.GetCommissionDetails)
+		auth.GET("/commission/balance", c.GetCommissionBalance)
 		auth.GET("/deals", c.GetDeals)
 	}
 }
@@ -351,5 +352,30 @@ func (c *ACNController) GetDeals(ctx *gin.Context) {
 			"total":     total,
 			"has_more":  total > int64(page*pageSize),
 		},
+	})
+}
+
+// GetCommissionBalance 获取当前佣金余额
+func (c *ACNController) GetCommissionBalance(ctx *gin.Context) {
+	userID := ctx.GetInt64("user_id")
+
+	// 调用service获取统计数据
+	startDate := time.Now().AddDate(0, -12, 0) // 查询近12个月
+	endDate := time.Now()
+
+	stats, err := c.service.GetCommissionStatistics(ctx, userID, startDate, endDate)
+	if err != nil {
+		if appErr, ok := err.(*common.AppError); ok {
+			common.ErrorResponse(ctx, appErr)
+		} else {
+			common.ServerError(ctx)
+		}
+		return
+	}
+
+	// 返回余额（已确认但未支付的金额）
+	common.Success(ctx, gin.H{
+		"balance":  stats.ConfirmedAmount - stats.PaidAmount,
+		"currency": "MMK",
 	})
 }
