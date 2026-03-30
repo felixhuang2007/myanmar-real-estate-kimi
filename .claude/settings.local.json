@@ -306,7 +306,20 @@
       "mcp__plugin_claude-mem_mcp-search__search",
       "mcp__plugin_claude-mem_mcp-search__get_observations",
       "Bash(find . -type f -name *.md -path */qa/* -o -name *testing*)",
-      "Bash(sshpass:*)"
+      "Bash(sshpass:*)",
+      "Bash(cd /d D:workmyanmar-real-estate-kimimyanmar-real-estatebackend04-house-service)",
+      "Bash(certutil -encode -f repository.go repository.go.b64)",
+      "Bash(certutil:*)",
+      "Bash(powershell -Command \"[Convert]::ToBase64String\\([IO.File]::ReadAllBytes\\(''''D:\\\\work\\\\myanmar-real-estate-kimi\\\\myanmar-real-estate\\\\backend\\\\04-house-service\\\\repository.go''''\\)\\)\")",
+      "Bash(powershell -Command \"[Convert]::ToBase64String\\([IO.File]::ReadAllBytes\\(''repository.go''\\)\\)\")",
+      "Bash(powershell -Command \"[Convert]::ToBase64String\\([IO.File]::ReadAllBytes\\('D:\\\\work\\\\myanmar-real-estate-kimi\\\\myanmar-real-estate\\\\backend\\\\04-house-service\\\\repository.go'\\)\\)\" > /d/work/myanmar-real-estate-kimi/repo_house_base64.txt)",
+      "Bash(powershell -Command \"[Convert]::ToBase64String\\([IO.File]::ReadAllBytes\\('D:\\\\work\\\\myanmar-real-estate-kimi\\\\myanmar-real-estate\\\\backend\\\\03-user-service\\\\controller\\\\controller.go'\\)\\)\" > /d/work/myanmar-real-estate-kimi/repo_user_base64.txt)",
+      "Bash(: D:\\\\work\\\\myanmar-real-estate-kimi\\\\myanmar-real-estate\\\\qa\\\\scripts)",
+      "Bash(: '开始回归测试验证', \"timeout\": 120000})",
+      "Bash(: D:workmyanmar-real-estate-kimimyanmar-real-estate)",
+      "Bash(find . -name *.js -type f)",
+      "Bash(: D:workmyanmar-real-estate-kimimyanmar-real-estate/qa/scripts)",
+      "Bash(.git diff:*)"
     ]
   }
 }
