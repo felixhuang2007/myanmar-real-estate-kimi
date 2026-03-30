@@ -21,6 +21,13 @@ func NewOpsController(bannerSvc service.BannerService) *OpsController {
 
 // RegisterRoutes 注册路由（挂载在 /admin 下）
 func (ctrl *OpsController) RegisterRoutes(r *gin.RouterGroup) {
+	// 公开路由 - 无需认证
+	public := r.Group("")
+	{
+		public.GET("/regions", ctrl.GetRegions)
+	}
+
+	// 管理后台路由 - 需要认证
 	admin := r.Group("/admin")
 	{
 		banners := admin.Group("/banners")
@@ -141,4 +148,33 @@ func (ctrl *OpsController) UpdateBannerStatus(c *gin.Context) {
 	}
 
 	common.Success(c, gin.H{"message": "状态更新成功", "id": id, "status": req.Status})
+}
+
+// Region 地区信息
+type Region struct {
+	ID     int64  `json:"id"`
+	Name   string `json:"name"`
+	NameEn string `json:"name_en"`
+	Code   string `json:"code"`
+}
+
+// GetRegions 获取地区列表
+func (ctrl *OpsController) GetRegions(c *gin.Context) {
+	// 静态地区数据（缅甸主要城市）
+	regions := []Region{
+		{ID: 1, Name: "仰光", NameEn: "Yangon", Code: "YGN"},
+		{ID: 2, Name: "曼德勒", NameEn: "Mandalay", Code: "MDL"},
+		{ID: 3, Name: "内比都", NameEn: "Naypyidaw", Code: "NPY"},
+		{ID: 4, Name: "东枝", NameEn: "Taunggyi", Code: "TGI"},
+		{ID: 5, Name: "勃生", NameEn: "Pathein", Code: "PTN"},
+		{ID: 6, Name: "毛淡棉", NameEn: "Mawlamyine", Code: "MWM"},
+		{ID: 7, Name: "密铁拉", NameEn: "Meiktila", Code: "MKT"},
+		{ID: 8, Name: "实皆", NameEn: "Sagaing", Code: "SGG"},
+		{ID: 9, Name: "密支那", NameEn: "Myitkyina", Code: "MYT"},
+		{ID: 10, Name: "皎漂", NameEn: "Kyaukpyu", Code: "KYP"},
+	}
+
+	common.Success(c, gin.H{
+		"regions": regions,
+	})
 }
