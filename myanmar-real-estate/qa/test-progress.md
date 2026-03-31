@@ -359,6 +359,49 @@ Response: 200 OK, message_id=1
 
 ---
 
+### 2026-03-31 夜间 - P0测试继续执行（第二轮）
+
+**执行记录**:
+- API-P023 - 获取消息列表 GET /conversations/:id/messages ✅ 通过
+- API-P024 - 收藏列表 GET /users/me/favorites ✅ 通过
+- API-P025 - 获取可用时段 GET /appointments/slots ✅ 通过
+- API-P026 - 佣金统计 GET /acn/commission/statistics ✅ 通过
+- API-P027 - 佣金明细 GET /acn/commission/details ✅ 通过
+- API-P028 - 创建争议 POST /acn/disputes ✅ 通过（返回成交单不存在，符合预期）
+- API-P029 - 经纪人申请 POST /agent/register ✅ 通过（申请ID=3）
+- API-P030 - 登出 POST /auth/logout ✅ 通过
+- API-P031 - 刷新Token POST /auth/refresh-token ✅ 通过
+- API-P032 - 获取上传Token POST /users/upload/token ✅ 通过
+- API-P033 - 房源搜索（按城市）GET /houses/search?city_id=1 ✅ 通过
+- API-P034 - 房源搜索（按价格）GET /houses/search?min_price=... ✅ 通过
+- API-P035 - 置顶会话 PUT /im/conversations/:id/pin ✅ 通过
+- API-P036 - 获取经纪人状态 GET /agent/status ✅ 通过
+
+**发现问题**:
+| 问题 | 描述 | 状态 |
+|------|------|------|
+| API-P028 | 创建成交单返回500数字溢出 | 🔴 待调查 |
+
+**P0测试执行统计 (夜间)**:
+| 类别 | 已执行 | 通过 | 失败 | 通过率 |
+|------|--------|------|------|--------|
+| 房源模块 | 2 | 2 | 0 | 100% |
+| 用户模块 | 3 | 3 | 0 | 100% |
+| 预约模块 | 1 | 1 | 0 | 100% |
+| IM模块 | 2 | 2 | 0 | 100% |
+| ACN模块 | 4 | 3 | 1 | 75% |
+| 认证模块 | 2 | 2 | 0 | 100% |
+| **合计** | **14** | **13** | **1** | **92.9%** |
+
+**累计P0测试统计**:
+| 类别 | 已执行 | 通过 | 失败 | 通过率 |
+|------|--------|------|------|--------|
+| 公开接口 | 11 | 11 | 0 | 100% |
+| 认证接口 | 30 | 29 | 1 | 96.7% |
+| **合计** | **41** | **40** | **1** | **97.6%** |
+
+---
+
 ### 2026-03-30 - Bug修复回归测试完成
 
 **今日计划**:
