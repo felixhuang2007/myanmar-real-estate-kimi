@@ -47,6 +47,13 @@ func (c *ACNController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.JW
 		auth.GET("/commission/balance", c.GetCommissionBalance)
 		auth.GET("/deals", c.GetDeals)
 	}
+
+	// 根路径路由别名，兼容API文档定义
+	rootAuth := r.Group("")
+	rootAuth.Use(userController.AuthMiddleware(jwtSvc, rdb))
+	{
+		rootAuth.GET("/deals", c.GetDeals)
+	}
 }
 
 // GetRoles 获取ACN角色列表
