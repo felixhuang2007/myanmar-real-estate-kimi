@@ -84,8 +84,9 @@ func (c *UserController) RegisterRoutes(r *gin.RouterGroup) {
 	}
 
 	// 公开用户接口（不需要认证）
-	r.GET("/users/:id", c.GetUserByID)
+	// 注意：静态路由必须在参数路由之前注册！
 	r.GET("/users/:id/public", c.GetUserPublicInfo)
+	r.GET("/users/:id", c.GetUserByID)
 
 	// 经纪人申请接口（需要认证）
 	agent := r.Group("/agent")
