@@ -85,6 +85,7 @@ func (c *UserController) RegisterRoutes(r *gin.RouterGroup) {
 
 	// 公开用户接口（不需要认证）
 	r.GET("/users/:id", c.GetUserByID)
+	r.GET("/users/:id/public", c.GetUserPublicInfo)
 
 	// 经纪人申请接口（需要认证）
 	agent := r.Group("/agent")
@@ -300,6 +301,40 @@ func (c *UserController) GetUserByID(ctx *gin.Context) {
 	}
 
 	common.Success(ctx, user)
+}
+
+// GetUserPublicInfo 获取用户公开信息
+func (c *UserController) GetUserPublicInfo(ctx *gin.Context) {
+	userID, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		common.BadRequest(ctx, "无效的用户ID")
+		return
+	}
+
+	user, err := c.userService.GetUserByID(ctx, userID)
+	if err != nil {
+		if appErr, ok := err.(*common.AppError); ok {
+			common.ErrorResponse(ctx, appErr)
+		} else {
+			common.ServerError(ctx)
+		}
+		return
+	}
+
+	// 只返回公开信息
+	publicInfo := gin.H{
+		"user_id":     user.UserID,
+		"uuid":        user.UUID,
+		"is_verified": user.IsVerified,
+	}
+
+	// 从Profile中获取昵称和头像
+	if user.Profile != nil {
+		publicInfo["nickname"] = user.Profile.Nickname
+		publicInfo["avatar"] = user.Profile.Avatar
+	}
+
+	common.Success(ctx, publicInfo)
 }
 
 // UpdateProfile 更新用户资料

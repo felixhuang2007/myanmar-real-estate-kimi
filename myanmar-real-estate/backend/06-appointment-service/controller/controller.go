@@ -25,17 +25,24 @@ func NewAppointmentController(svc appointmentService.AppointmentService) *Appoin
 
 // RegisterRoutes 注册路由
 func (c *AppointmentController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.JWTService, rdb *redis.Client) {
+	// 预约相关路由
 	group := r.Group("/appointments")
 	group.Use(userController.AuthMiddleware(jwtSvc, rdb))
 	{
 		group.POST("", c.CreateAppointment)
 		group.GET("", c.GetMyAppointments)
 		group.GET("/slots", c.GetAvailableSlots)
-		group.GET("/calendar", c.GetCalendar) // 未实现，返回404
+		group.GET("/calendar", c.GetCalendar)
 		group.GET("/:id", c.GetAppointment)
 		group.POST("/:id/confirm", c.ConfirmAppointment)
 		group.POST("/:id/cancel", c.CancelAppointment)
 		group.POST("/:id/complete", c.CompleteAppointment)
+	}
+
+	// 经纪人日程路由（公开查询，创建预约时需要）
+	agents := r.Group("/agents")
+	{
+		agents.GET("/:id/schedules", c.GetAgentSchedules)
 	}
 }
 
@@ -231,4 +238,31 @@ func (c *AppointmentController) GetAvailableSlots(ctx *gin.Context) {
 // GetCalendar 获取预约日历（未实现）
 func (c *AppointmentController) GetCalendar(ctx *gin.Context) {
 	common.NotFound(ctx, "该功能尚未实现")
+}
+
+// GetAgentSchedules 获取经纪人可预约时段（公开接口）
+func (c *AppointmentController) GetAgentSchedules(ctx *gin.Context) {
+	agentID, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		common.BadRequest(ctx, "无效的经纪人ID")
+		return
+	}
+
+	date := ctx.DefaultQuery("date", "")
+	if date == "" {
+		// 如果没有指定日期，返回空列表
+		common.Success(ctx, []interface{}{})
+		return
+	}
+
+	slots, err := c.service.GetAvailableSlots(ctx, agentID, date)
+	if err != nil {
+		if appErr, ok := err.(*common.AppError); ok {
+			common.ErrorResponse(ctx, appErr)
+		} else {
+			common.ServerError(ctx)
+		}
+		return
+	}
+	common.Success(ctx, slots)
 }

@@ -43,6 +43,7 @@ func (c *ACNController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.JW
 		auth.GET("/disputes", c.GetDisputes)
 		auth.GET("/commission/statistics", c.GetCommissionStatistics)
 		auth.GET("/commission/details", c.GetCommissionDetails)
+		auth.GET("/commission/logs", c.GetCommissionDetails) // 别名，兼容前端调用
 		auth.GET("/commission/balance", c.GetCommissionBalance)
 		auth.GET("/deals", c.GetDeals)
 	}

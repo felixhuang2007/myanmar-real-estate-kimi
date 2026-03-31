@@ -319,7 +319,13 @@
       "Bash(: D:workmyanmar-real-estate-kimimyanmar-real-estate)",
       "Bash(find . -name *.js -type f)",
       "Bash(: D:workmyanmar-real-estate-kimimyanmar-real-estate/qa/scripts)",
-      "Bash(.git diff:*)"
+      "Bash(.git diff:*)",
+      "Bash(find D:workmyanmar-real-estate-kimimyanmar-real-estatebackend -name *.yaml -o -name *.yml)",
+      "Bash(wc:*)",
+      "Bash(find docs:*)",
+      "Bash(cp -r docs/* docs/archive/backup-20250331/docs/)",
+      "Bash(cp -r myanmar-real-estate/qa/* docs/archive/backup-20250331/qa/)",
+      "Bash(# 移动商务文档\nmv docs/缅甸房产平台专业报价清单* docs/archive/business/ 2>/dev/null || true\n\n# 移动QA历史报告\nmv myanmar-real-estate/qa/reports docs/archive/qa/ 2>/dev/null || true\n\n# 移动Bug报告（保留最近的和template）\nmkdir -p docs/archive/qa/bug-reports\nmv myanmar-real-estate/qa/bug-reports/BUG-ACN-001-FIXED.md docs/archive/qa/bug-reports/ 2>/dev/null || true\nmv myanmar-real-estate/qa/bug-reports/BUG-ACN-001-分佣计算精度问题.md docs/archive/qa/bug-reports/ 2>/dev/null || true\nmv myanmar-real-estate/qa/bug-reports/BUG-FIX-REPORT.md docs/archive/qa/bug-reports/ 2>/dev/null || true\nmv myanmar-real-estate/qa/bug-reports/BUG-HOUSE-001-房源编码缺少导入.md docs/archive/qa/bug-reports/ 2>/dev/null || true\nmv myanmar-real-estate/qa/bug-reports/BUG-IM-001-IMToken未实现.md docs/archive/qa/bug-reports/ 2>/dev/null || true\nmv myanmar-real-estate/qa/bug-reports/BUG-IM-002-会话删除未实现.md docs/archive/qa/bug-reports/ 2>/dev/null || true\nmv myanmar-real-estate/qa/bug-reports/BUG-SUMMARY-20260317.md docs/archive/qa/bug-reports/ 2>/dev/null || true\nmv myanmar-real-estate/qa/bug-reports/BUG-USER-001-登出功能未实现.md docs/archive/qa/bug-reports/ 2>/dev/null || true\n\n# 移动Bug review\nmv myanmar-real-estate/qa/bug-reviews docs/archive/qa/ 2>/dev/null || true\n\n# 移动Code review\nmv myanmar-real-estate/qa/code-review docs/archive/qa/ 2>/dev/null || true\n\necho \"归档完成\")"
     ]
   }
 }

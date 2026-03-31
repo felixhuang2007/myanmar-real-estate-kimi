@@ -1,32 +1,141 @@
-# 缅甸房产平台 - 技术文档
+# 缅甸房产平台 - 技术文档中心
 
 **项目**: Myanmar Home - Real Estate Platform
 **版本**: 1.0
-**更新日期**: 2026-03-18
+**更新日期**: 2026-03-31
 
 ---
 
-## 文档目录
+## 📋 文档总览
 
-| 文档 | 路径 | 说明 |
-|------|------|------|
-| **系统架构** | `architecture/01-system-overview.md` | 整体技术架构、模块说明 |
-| **本地部署** | `deployment/01-local-development.md` | 开发环境搭建指南 |
-| **开发规范** | `development/01-coding-standards.md` | 代码规范、Git流程 |
-| **API文档** | `api/01-authentication.md` | 接口详细说明 |
-| **测试指南** | `testing/01-testing-guide.md` | 测试策略、用例编写 |
+| 分类 | 文档数 | 说明 |
+|------|--------|------|
+| 架构设计 | 1 | 系统整体架构 |
+| 技术细节 | 3 | 数据库、API、服务配置 |
+| API文档 | 1 | 认证接口详解 |
+| 部署运维 | 2 | 本地开发、环境测试 |
+| 开发规范 | 1 | 编码规范 |
+| 测试指南 | 1 | 测试流程和方法 |
+| 项目状态 | 1 | 当前进度跟踪 |
+| **总计** | **10** | - |
 
 ---
 
-## 快速开始
+## 📁 文档目录
 
-### 1. 环境要求
+### 架构设计 (architecture/)
+
+| 文档 | 说明 | 更新时间 |
+|------|------|----------|
+| [01-system-overview.md](./architecture/01-system-overview.md) | 系统整体架构设计、模块划分、技术选型 | 2026-03 |
+
+### 技术细节 (technical/)
+
+| 文档 | 说明 | 更新时间 |
+|------|------|----------|
+| [database-guide.md](./technical/database-guide.md) | 数据库表结构、索引说明、性能优化、35张表详细说明 | 2026-03-31 |
+| [api-dependencies.md](./technical/api-dependencies.md) | API模块清单、服务依赖、权限控制、51个接口说明 | 2026-03-31 |
+| [service-mock-guide.md](./technical/service-mock-guide.md) | Mock/真实服务切换指南（SMS/IM/支付/存储） | 2026-03-31 |
+
+### API文档 (api/)
+
+| 文档 | 说明 | 更新时间 |
+|------|------|----------|
+| [01-authentication.md](./api/01-authentication.md) | 认证接口详解（登录/注册/Token刷新） | 2026-03 |
+
+### 部署运维 (deployment/)
+
+| 文档 | 说明 | 更新时间 |
+|------|------|----------|
+| [01-local-development.md](./deployment/01-local-development.md) | 本地开发环境搭建指南 | 2026-03 |
+| [02-environment-test-report.md](./deployment/02-environment-test-report.md) | 环境搭建测试报告 | 2026-03 |
+
+### 开发规范 (development/)
+
+| 文档 | 说明 | 更新时间 |
+|------|------|----------|
+| [01-coding-standards.md](./development/01-coding-standards.md) | Go/Flutter编码规范 | 2026-03 |
+
+### 测试指南 (testing/)
+
+| 文档 | 说明 | 更新时间 |
+|------|------|----------|
+| [01-testing-guide.md](./testing/01-testing-guide.md) | 测试策略、测试用例编写规范 | 2026-03 |
+
+### 项目状态
+
+| 文档 | 说明 | 更新时间 |
+|------|------|----------|
+| [project-status.md](./project-status.md) | 当前进度、完成情况、待办事项 | 2026-03 |
+
+---
+
+## 🔧 核心资源路径
+
+### 代码库
+
+| 资源 | 路径 |
+|------|------|
+| 后端代码 | `myanmar-real-estate/backend/` |
+| Flutter App | `myanmar-real-estate/flutter/` |
+| Web Admin | `myanmar-real-estate/frontend/web-admin/` |
+| 数据库Schema | `myanmar-real-estate/backend/01-database-schema.sql` |
+| API规范 | `myanmar-real-estate/backend/02-api-spec.md` |
+
+### QA测试
+
+| 资源 | 路径 |
+|------|------|
+| 测试计划 | `myanmar-real-estate/qa/test-plan.md` |
+| 测试进展 | `myanmar-real-estate/qa/test-progress.md` |
+| 执行计划 | `myanmar-real-estate/qa/execution-plan.md` |
+| API测试用例 | `myanmar-real-estate/qa/test-cases/api/api-tests.yml` |
+| C端测试用例 | `myanmar-real-estate/qa/test-cases/functional/c-app.yml` |
+| B端测试用例 | `myanmar-real-estate/qa/test-cases/functional/b-app.yml` |
+| 测试脚本 | `myanmar-real-estate/qa/scripts/` |
+
+---
+
+## 📦 归档文档 (archive/)
+
+以下文档已归档，不再活跃维护，仅供参考：
+
+| 分类 | 内容 |
+|------|------|
+| backup-20250331/ | 文档备份（2026-03-31创建） |
+| business/ | 商务文档（报价清单等） |
+| qa/bug-reports/ | 历史Bug报告 |
+| qa/code-review/ | 历史代码审查记录 |
+| qa/reports/ | 历史测试报告 |
+
+---
+
+## 🚀 快速开始
+
+### 新成员入门
+
+1. 阅读 [项目状态](./project-status.md) 了解当前进度（85-90%完成）
+2. 阅读 [系统架构](./architecture/01-system-overview.md) 了解整体设计
+3. 阅读 [本地开发指南](./deployment/01-local-development.md) 搭建环境
+4. 阅读 [编码规范](./development/01-coding-standards.md) 了解开发规范
+
+### 开发工作流
+
+1. 查看 [API依赖文档](./technical/api-dependencies.md) 了解服务接口
+2. 查看 [数据库文档](./technical/database-guide.md) 了解表结构
+3. 查看 [Mock切换指南](./technical/service-mock-guide.md) 了解服务配置
+4. 参考 [测试指南](./testing/01-testing-guide.md) 编写测试用例
+
+---
+
+## ⚡ 环境要求
+
 - Go 1.21+
 - Node.js 18+
 - Flutter 3.19+
 - Docker Desktop
 
-### 2. 启动服务
+### 快速启动
 
 ```bash
 # 进入项目目录
@@ -47,7 +156,7 @@ cd backend && go run cmd/server/main.go
 cd frontend/web-admin && npm run dev
 ```
 
-### 3. 访问服务
+### 访问服务
 
 | 服务 | 地址 |
 |------|------|
@@ -57,7 +166,7 @@ cd frontend/web-admin && npm run dev
 
 ---
 
-## 项目结构
+## 📊 项目结构
 
 ```
 myanmar-real-estate/
@@ -81,58 +190,7 @@ myanmar-real-estate/
 
 ---
 
-## 核心功能
-
-### 1. 用户系统
-- 手机号注册/登录
-- JWT Token认证
-- 实名认证
-- 用户画像
-
-### 2. 房源系统
-- 房源发布（图片/视频）
-- 多维度搜索
-- 地图找房
-- 房源验真
-
-### 3. ACN协作网络
-5角色分佣模型：
-- **录入人**: 35%（房源方）
-- **维护人**: 分配比例
-- **转介绍**: 分配比例
-- **带看人**: 65%（客源方）
-- **成交人**: 分配比例
-
-### 4. 预约看房
-- 在线预约
-- 时间冲突检测
-- 看房反馈
-
----
-
-## 技术栈
-
-### 后端
-- **语言**: Go 1.21+
-- **框架**: Gin
-- **ORM**: GORM
-- **数据库**: PostgreSQL 15
-- **缓存**: Redis 7
-- **搜索**: Elasticsearch 8
-
-### 前端
-- **移动端**: Flutter 3.19
-- **管理后台**: React 18 + UmiJS 4 + Ant Design 5
-- **类型**: TypeScript
-
-### 运维
-- **容器**: Docker + Docker Compose
-- **监控**: Prometheus + Grafana
-- **网关**: Nginx
-
----
-
-## 模拟服务配置
+## 🔐 模拟服务配置
 
 本地开发无需真实第三方账号，使用以下模拟方案：
 
@@ -141,21 +199,15 @@ myanmar-real-estate/
 | **短信** | Mock模式 | 验证码固定`123456` |
 | **存储** | MinIO | http://localhost:9000 |
 | **IM** | Mock模式 | 内存存储 |
-| **地图** | Google Maps（可选）| 需申请免费API Key |
+| **支付** | Mock模式 | 直接返回成功 |
 
-启动MinIO:
-```bash
-docker run -d -p 9000:9000 -p 9001:9001 \
-  -e MINIO_ROOT_USER=minioadmin \
-  -e MINIO_ROOT_PASSWORD=minioadmin \
-  minio/minio server /data --console-address ":9001"
-```
+真实服务切换参考 [service-mock-guide.md](./technical/service-mock-guide.md)
 
 ---
 
-## 开发工作流
+## 📝 开发工作流
 
-### 1. 分支管理
+### 分支管理
 ```
 main (生产)
   ↑
@@ -164,7 +216,7 @@ develop (开发)
 feature/xxx (功能分支)
 ```
 
-### 2. 提交规范
+### 提交规范
 ```
 feat(user): 添加用户实名认证
 
@@ -172,63 +224,11 @@ feat(user): 添加用户实名认证
 - 添加实名认证状态机
 ```
 
-### 3. 代码审查
-- 单元测试通过
-- 无敏感信息
-- 符合编码规范
-
 ---
 
-## 测试
+## ⚠️ 安全提醒
 
-### 运行测试
-```bash
-# 后端测试
-cd backend && go test ./...
-
-# 前端测试
-cd flutter && flutter test
-```
-
-### 覆盖率
-```bash
-# Go覆盖率
-go test -coverprofile=coverage.out ./...
-go tool cover -html=coverage.out
-```
-
----
-
-## 常见问题
-
-### Q: 数据库连接失败？
-A: 确保Docker已启动且容器运行正常
-```bash
-cd backend
-docker-compose ps
-docker-compose logs postgres
-```
-
-### Q: 如何重置数据库？
-A:
-```bash
-cd backend
-docker-compose down -v
-docker-compose up -d
-# 重新执行schema
-psql -h localhost -U myanmar_property -d myanmarhome -f 01-database-schema.sql
-```
-
-### Q: 修改代码后需要重启？
-A:
-- **后端**: 需要重新编译运行
-- **前端**: 支持热重载，自动刷新
-
----
-
-## 安全提醒
-
-⚠️ **生产环境必须修改**:
+生产环境必须修改：
 1. JWT Secret（最小32位随机字符串）
 2. 数据库密码（强密码）
 3. 使用真实第三方服务账号
@@ -237,28 +237,11 @@ A:
 
 ---
 
-## 联系方式
+## 📞 联系方式
 
-| 角色 | 职责 |
-|------|------|
-| 技术负责人 | 架构设计、技术决策 |
-| 后端开发 | API开发、数据库设计 |
-| 前端开发 | 移动端/Web端开发 |
-| 测试工程师 | 测试用例、质量保障 |
-| 运维工程师 | 部署、监控 |
+- 技术团队: tech@myanmar-property.com
+- QA团队: qa@myanmar-property.com
 
 ---
 
-## 更新日志
-
-### v1.0 (2026-03-18)
-- 初始化项目文档
-- 添加系统架构说明
-- 添加部署指南
-- 添加开发规范
-- 添加API文档
-- 添加测试指南
-
----
-
-**注意**: 本文档持续更新，如有疑问请查阅具体模块文档。
+**维护说明**: 本文档由技术团队维护，持续更新中。

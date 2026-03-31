@@ -37,6 +37,16 @@ func (c *IMController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.JWT
 		group.PUT("/conversations/:id/pin", c.PinConversation)
 		group.GET("/messages", c.GetMessages)
 	}
+
+	// 添加根路径路由别名，兼容测试用例
+	auth := r.Group("")
+	auth.Use(userController.AuthMiddleware(jwtSvc, rdb))
+	{
+		auth.GET("/conversations", c.GetConversations)
+		auth.POST("/conversations", c.GetOrCreateConversation)
+		auth.GET("/conversations/:id/messages", c.GetMessagesByConversationID)
+		auth.POST("/messages/send", c.SendMessage)
+	}
 }
 
 // GetIMToken 获取IM Token
@@ -274,6 +284,43 @@ func (c *IMController) GetMessages(ctx *gin.Context) {
 		"pagination": gin.H{
 			"page":      page,
 			"page_size": pageSize,
+		},
+	})
+}
+
+// GetMessagesByConversationID 从URL路径参数获取会话ID查询消息
+func (c *IMController) GetMessagesByConversationID(ctx *gin.Context) {
+	convID, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		common.BadRequest(ctx, "无效的会话ID")
+		return
+	}
+
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "20"))
+
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 || pageSize > 100 {
+		pageSize = 20
+	}
+
+	messages, err := c.service.GetMessages(ctx, convID, 0, pageSize)
+	if err != nil {
+		if appErr, ok := err.(*common.AppError); ok {
+			common.ErrorResponse(ctx, appErr)
+		} else {
+			common.ServerError(ctx)
+		}
+		return
+	}
+	common.Success(ctx, gin.H{
+		"list": messages,
+		"pagination": gin.H{
+			"page":       page,
+			"page_size":  pageSize,
+			"has_more":   len(messages) == pageSize,
 		},
 	})
 }
