@@ -647,7 +647,7 @@ CREATE TABLE acn_roles (
     name VARCHAR(50) NOT NULL,
     name_en VARCHAR(50),
     description TEXT,
-    default_ratio DECIMAL(5, 2) NOT NULL,
+    default_ratio INTEGER NOT NULL,
     role_type VARCHAR(20) NOT NULL CHECK (role_type IN ('source', 'client')),
     sort_order INT DEFAULT 0
 );
@@ -674,28 +674,28 @@ CREATE TABLE acn_transactions (
     
     -- 房源方
     entrant_id BIGINT REFERENCES agents(id),
-    entrant_ratio DECIMAL(5, 2) DEFAULT 15.00,
+    entrant_ratio INTEGER DEFAULT 1500,
     entrant_amount BIGINT,
     
     maintainer_id BIGINT REFERENCES agents(id),
-    maintainer_ratio DECIMAL(5, 2) DEFAULT 20.00,
+    maintainer_ratio INTEGER DEFAULT 2000,
     maintainer_amount BIGINT,
     
     -- 客源方
     introducer_id BIGINT REFERENCES agents(id),
-    introducer_ratio DECIMAL(5, 2) DEFAULT 10.00,
+    introducer_ratio INTEGER DEFAULT 1000,
     introducer_amount BIGINT,
     
     accompanier_id BIGINT REFERENCES agents(id),
-    accompanier_ratio DECIMAL(5, 2) DEFAULT 15.00,
+    accompanier_ratio INTEGER DEFAULT 1500,
     accompanier_amount BIGINT,
     
     closer_id BIGINT REFERENCES agents(id) NOT NULL,
-    closer_ratio DECIMAL(5, 2) DEFAULT 40.00,
+    closer_ratio INTEGER DEFAULT 4000,
     closer_amount BIGINT,
     
     -- 平台服务费
-    platform_ratio DECIMAL(5, 2) DEFAULT 10.00,
+    platform_ratio INTEGER DEFAULT 1000,
     platform_amount BIGINT,
     
     -- 状态
@@ -722,7 +722,7 @@ CREATE TABLE acn_commission_details (
     transaction_id BIGINT REFERENCES acn_transactions(id) ON DELETE CASCADE,
     agent_id BIGINT REFERENCES agents(id),
     role_code VARCHAR(20) REFERENCES acn_roles(code),
-    ratio DECIMAL(5, 2) NOT NULL,
+    ratio INTEGER NOT NULL,
     amount BIGINT NOT NULL,
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'disputed', 'paid')),
     confirmed_at TIMESTAMP WITH TIME ZONE,
