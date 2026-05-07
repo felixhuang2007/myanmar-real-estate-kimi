@@ -80,6 +80,7 @@ func (c *UserController) RegisterRoutes(r *gin.RouterGroup) {
 
 		// 上传
 		users.POST("/upload/token", c.GetUploadToken)
+		users.GET("/upload/token", c.GetUploadToken)
 		users.DELETE("/me/browsing-history", c.ClearBrowsingHistory)
 	}
 
@@ -94,6 +95,13 @@ func (c *UserController) RegisterRoutes(r *gin.RouterGroup) {
 	{
 		agent.POST("/register", c.AgentRegister)
 		agent.GET("/status", c.GetAgentStatus)
+	}
+
+	// 通知列表接口（需要认证）
+	notifications := r.Group("/notifications")
+	notifications.Use(AuthMiddleware(c.jwtService, c.redisClient))
+	{
+		notifications.GET("", c.GetNotifications)
 	}
 }
 
@@ -671,5 +679,51 @@ func (c *UserController) GetAgentStatus(ctx *gin.Context) {
 	common.Success(ctx, gin.H{
 		"id":     agent.ID,
 		"status": agent.Status,
+	})
+}
+
+// GetNotifications 获取通知列表
+func (c *UserController) GetNotifications(ctx *gin.Context) {
+	userID := ctx.GetInt64("user_id")
+	_ = userID
+
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "20"))
+
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 || pageSize > 100 {
+		pageSize = 20
+	}
+
+	// 返回示例通知列表
+	notifications := []gin.H{
+		{
+			"id":         1,
+			"type":       "system",
+			"title":      "欢迎加入",
+			"content":    "欢迎加入缅甸房产平台！",
+			"is_read":    false,
+			"created_at": time.Now().Add(-24 * time.Hour).Format(time.RFC3339),
+		},
+		{
+			"id":         2,
+			"type":       "appointment",
+			"title":      "预约提醒",
+			"content":    "您有一条新的看房预约",
+			"is_read":    false,
+			"created_at": time.Now().Add(-2 * time.Hour).Format(time.RFC3339),
+		},
+	}
+
+	common.Success(ctx, gin.H{
+		"list": notifications,
+		"pagination": gin.H{
+			"page":      page,
+			"page_size": pageSize,
+			"total":     2,
+			"has_more":  false,
+		},
 	})
 }

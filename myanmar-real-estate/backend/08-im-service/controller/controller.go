@@ -36,6 +36,7 @@ func (c *IMController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.JWT
 		group.POST("/conversations/:id/read", c.MarkAsRead)
 		group.PUT("/conversations/:id/pin", c.PinConversation)
 		group.GET("/messages", c.GetMessages)
+		group.GET("/quick-replies", c.GetQuickReplies)
 	}
 
 	// 添加根路径路由别名，兼容测试用例
@@ -46,6 +47,9 @@ func (c *IMController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.JWT
 		auth.POST("/conversations", c.GetOrCreateConversation)
 		auth.GET("/conversations/:id/messages", c.GetMessagesByConversationID)
 		auth.POST("/messages/send", c.SendMessage)
+		auth.POST("/messages/:id/recall", c.RecallMessage)
+		auth.POST("/conversations/:id/read", c.MarkAsRead)
+		auth.PUT("/im/conversations/:id/read", c.MarkAsRead)
 	}
 }
 
@@ -323,4 +327,19 @@ func (c *IMController) GetMessagesByConversationID(ctx *gin.Context) {
 			"has_more":   len(messages) == pageSize,
 		},
 	})
+}
+
+// GetQuickReplies 获取快捷话术列表
+func (c *IMController) GetQuickReplies(ctx *gin.Context) {
+	userID := ctx.GetInt64("user_id")
+	_ = userID
+	// 返回预设的快捷话术列表
+	quickReplies := []gin.H{
+		{"id": 1, "title": "你好", "content": "您好，请问有什么可以帮您？"},
+		{"id": 2, "title": "房源咨询", "content": "请问您对哪套房源感兴趣？"},
+		{"id": 3, "title": "预约看房", "content": "您好，我可以帮您预约看房时间。"},
+		{"id": 4, "title": "价格咨询", "content": "这套房源的价格可以商量，您预算多少？"},
+		{"id": 5, "title": "位置咨询", "content": "这套房源位于市中心，交通便利。"},
+	}
+	common.Success(ctx, gin.H{"list": quickReplies})
 }

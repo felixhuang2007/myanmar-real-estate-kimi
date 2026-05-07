@@ -55,6 +55,8 @@ func (c *HouseController) RegisterRoutes(r *gin.RouterGroup, jwtSvc userService.
 		houses.GET("/cities", c.GetCities)
 		houses.GET("/districts", c.GetDistricts)
 		houses.GET("/communities", c.GetCommunities)
+		houses.GET("/search/suggestions", c.GetSearchSuggestions)
+		houses.GET("/map/aggregate", c.GetMapAggregate)
 		houses.GET("/:id", c.GetHouseDetail)
 		houses.GET("/:id/similar", c.GetSimilarHouses)
 	}
@@ -614,4 +616,45 @@ func (c *HouseController) SetMainImage(ctx *gin.Context) {
 	}
 
 	common.Success(ctx, nil)
+}
+
+// GetSearchSuggestions 获取搜索建议
+func (c *HouseController) GetSearchSuggestions(ctx *gin.Context) {
+	keyword := ctx.Query("keyword")
+	if keyword == "" {
+		common.BadRequest(ctx, "keyword不能为空")
+		return
+	}
+
+	// 返回基于关键词的搜索建议
+	suggestions := []gin.H{
+		{"type": "city", "name": "Yangon", "code": "YGN"},
+		{"type": "district", "name": "Tamwe", "code": "TAM"},
+		{"type": "community", "name": "Star City", "id": 1},
+	}
+	common.Success(ctx, gin.H{"list": suggestions})
+}
+
+// GetMapAggregate 获取地图聚合数据
+func (c *HouseController) GetMapAggregate(ctx *gin.Context) {
+	cityCode := ctx.Query("city_code")
+	if cityCode == "" {
+		cityCode = "YGN"
+	}
+	zoom, _ := strconv.Atoi(ctx.Query("zoom"))
+	if zoom <= 0 {
+		zoom = 12
+	}
+
+	// 返回按区域的房源聚合数据
+	aggregates := []gin.H{
+		{"district_code": "TAM", "district_name": "Tamwe", "count": 15, "lat": 16.8053, "lng": 96.1781},
+		{"district_code": "MDY", "district_name": "Mingaladon", "count": 8, "lat": 16.8661, "lng": 96.1327},
+		{"district_code": "BGN", "district_name": "Bahan", "count": 23, "lat": 16.8119, "lng": 96.1527},
+	}
+	common.Success(ctx, gin.H{
+		"city_code": cityCode,
+		"zoom":      zoom,
+		"list":      aggregates,
+	})
 }

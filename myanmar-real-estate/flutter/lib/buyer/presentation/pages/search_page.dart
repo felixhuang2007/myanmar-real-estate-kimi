@@ -67,7 +67,13 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go(RouteNames.buyerHome);
+                      }
+                    },
                     icon: const Icon(Icons.arrow_back),
                   ),
                   Expanded(

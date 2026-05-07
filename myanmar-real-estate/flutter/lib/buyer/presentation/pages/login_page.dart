@@ -90,7 +90,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
+    final l = Localizations.of<AppLocalizations>(context, AppLocalizations);
     final authState = ref.watch(authProvider);
 
     return Scaffold(
@@ -138,8 +138,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
-                  labelText: l.phoneNumber,
-                  hintText: l.pleaseEnterPhone,
+                  labelText: l?.phoneNumber ?? '手机号',
+                  hintText: l?.pleaseEnterPhone ?? '请输入手机号',
                   prefixIcon: const Icon(Icons.phone_outlined),
                   prefixText: '+95 ',
                   filled: true,
@@ -185,7 +185,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: TextButton(
                     onPressed: _countdown > 0 ? null : _sendCode,
                     child: Text(
-                      _countdown > 0 ? '重新发送 ($_countdown s)' : l.resendCode,
+                      _countdown > 0 ? '重新发送 ($_countdown s)' : (l?.resendCode ?? '重新发送'),
                     ),
                   ),
                 ),
@@ -208,7 +208,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             color: AppColors.white,
                           ),
                         )
-                      : Text(_isCodeSent ? l.login : l.getVerificationCode),
+                      : Text(_isCodeSent ? (l?.login ?? '登录') : (l?.getVerificationCode ?? '获取验证码')),
                 ),
               ),
 
@@ -224,7 +224,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                     children: [
                       TextSpan(
-                        text: '《${l.termsOfService}》',
+                        text: '《${l?.termsOfService ?? '服务条款'}》',
                         style: const TextStyle(
                           color: AppColors.primary700,
                           fontWeight: FontWeight.w500,
@@ -232,7 +232,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                       const TextSpan(text: '和'),
                       TextSpan(
-                        text: '《${l.privacyPolicy}》',
+                        text: '《${l?.privacyPolicy ?? '隐私政策'}》',
                         style: const TextStyle(
                           color: AppColors.primary700,
                           fontWeight: FontWeight.w500,

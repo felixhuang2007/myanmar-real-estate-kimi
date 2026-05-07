@@ -18,16 +18,29 @@ class LocalStorage {
   /// 初始化存储
   static Future<void> init() async {
     await Hive.initFlutter();
-    
+
     // 注册适配器
     Hive.registerAdapter(UserAdapter());
     Hive.registerAdapter(UserProfileAdapter());
     Hive.registerAdapter(UserVerificationAdapter());
     Hive.registerAdapter(AgentInfoAdapter());
-    
-    // 打开Box
-    _userBox = await Hive.openBox<User>('user');
-    _cacheBox = await Hive.openBox('cache');
+
+    try {
+      // 打开Box
+      _userBox = await Hive.openBox<User>('user');
+    } catch (e) {
+      // 数据不兼容时删除旧box重新创建
+      await Hive.deleteBoxFromDisk('user');
+      _userBox = await Hive.openBox<User>('user');
+    }
+
+    try {
+      _cacheBox = await Hive.openBox('cache');
+    } catch (e) {
+      await Hive.deleteBoxFromDisk('cache');
+      _cacheBox = await Hive.openBox('cache');
+    }
+
     _prefs = await SharedPreferences.getInstance();
   }
 

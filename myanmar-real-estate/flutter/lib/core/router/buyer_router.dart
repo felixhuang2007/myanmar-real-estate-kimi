@@ -44,29 +44,34 @@ final buyerRouterProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: true,
     refreshListenable: authListenable,
     redirect: (context, state) async {
-      final isLoggedIn = ref.read(authProvider).isLoggedIn;
+      try {
+        final isLoggedIn = ref.read(authProvider).isLoggedIn;
 
-      final isSplash         = state.matchedLocation == RouteNames.splash;
-      final isLanguageSelect = state.matchedLocation == RouteNames.languageSelect;
-      final isOnboarding     = state.matchedLocation == RouteNames.onboarding;
-      final isLogin          = state.matchedLocation == RouteNames.login ||
-                                state.matchedLocation == RouteNames.register;
+        final isSplash         = state.matchedLocation == RouteNames.splash;
+        final isLanguageSelect = state.matchedLocation == RouteNames.languageSelect;
+        final isOnboarding     = state.matchedLocation == RouteNames.onboarding;
+        final isLogin          = state.matchedLocation == RouteNames.login ||
+                                  state.matchedLocation == RouteNames.register;
 
-      if (isSplash) {
-        final isFirst = await LocalStorage.isFirstLaunch();
-        if (isFirst) return RouteNames.languageSelect;
-        return isLoggedIn ? RouteNames.buyerHome : RouteNames.login;
+        if (isSplash) {
+          final isFirst = await LocalStorage.isFirstLaunch();
+          if (isFirst) return RouteNames.languageSelect;
+          return isLoggedIn ? RouteNames.buyerHome : RouteNames.login;
+        }
+
+        if (isLanguageSelect) return null;
+
+        if (isOnboarding || isLogin) {
+          return isLoggedIn ? RouteNames.buyerHome : null;
+        }
+
+        if (!isLoggedIn) return RouteNames.login;
+
+        return null;
+      } catch (e) {
+        // redirect 出错时安全降级到登录页
+        return RouteNames.login;
       }
-
-      if (isLanguageSelect) return null;
-
-      if (isOnboarding || isLogin) {
-        return isLoggedIn ? RouteNames.buyerHome : null;
-      }
-
-      if (!isLoggedIn) return RouteNames.login;
-
-      return null;
     },
     routes: [
       // 语言选择页
@@ -132,8 +137,8 @@ final buyerRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/buyer/favorites',
-                builder: (context, state) => Scaffold(
-                  body: Center(child: Text(AppLocalizations.of(context).favorites)),
+                builder: (context, state) => const Scaffold(
+                  body: Center(child: Text('Favorites')),
                 ),
               ),
             ],

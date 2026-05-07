@@ -61,13 +61,13 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final l = Localizations.of<AppLocalizations>(context, AppLocalizations);
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Center(
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-            final l = AppLocalizations.of(context);
             return Opacity(
               opacity: _fadeAnimation.value,
               child: Transform.scale(
@@ -75,7 +75,6 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo容器
                     Container(
                       width: 120,
                       height: 120,
@@ -97,16 +96,14 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // 应用名称
                     Text(
-                      l.appTitle,
+                      l?.appTitle ?? 'Myanmar Home',
                       style: Theme.of(context).textTheme.displayMedium?.copyWith(
                             color: AppColors.gray900,
                             fontWeight: FontWeight.bold,
                           ),
                     ),
                     const SizedBox(height: 8),
-                    // 副标题
                     Text(
                       'Myanmar Home',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(

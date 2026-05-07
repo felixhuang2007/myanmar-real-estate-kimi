@@ -208,6 +208,9 @@ func (c *AppointmentController) CompleteAppointment(ctx *gin.Context) {
 func (c *AppointmentController) GetAvailableSlots(ctx *gin.Context) {
 	agentIDStr := ctx.Query("agentId")
 	if agentIDStr == "" {
+		agentIDStr = ctx.Query("agent_id")
+	}
+	if agentIDStr == "" {
 		common.BadRequest(ctx, "agentId不能为空")
 		return
 	}

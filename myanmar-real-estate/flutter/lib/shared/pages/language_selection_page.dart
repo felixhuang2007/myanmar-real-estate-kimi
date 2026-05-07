@@ -59,11 +59,11 @@ class _LanguageSelectionPageState
               const SizedBox(height: 48),
               FilledButton(
                 onPressed: _onContinue,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 14),
                   child: Text(
-                    AppLocalizations.of(context).continueBtn,
-                    style: const TextStyle(fontSize: 16),
+                    'Continue',
+                    style: TextStyle(fontSize: 16),
                   ),
                 ),
               ),

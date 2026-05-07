@@ -6,9 +6,8 @@
 class ApiConstants {
   ApiConstants._();
 
-  // 基础URL (本地开发环境)
-  // Windows PC测试使用本机IP，不要用localhost
-  static const String baseUrl = 'http://localhost:8080';
+  // 基础URL (远程测试服务器)
+  static const String baseUrl = 'http://43.163.122.42:8080';
   static const String apiVersion = 'v1';
   static const String baseApiUrl = '$baseUrl/$apiVersion';
 
