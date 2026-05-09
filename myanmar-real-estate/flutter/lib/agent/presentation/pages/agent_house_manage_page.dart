@@ -95,8 +95,16 @@ class _AgentHouseManagePageState extends ConsumerState<AgentHouseManagePage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(houseState.error!, style: const TextStyle(color: AppColors.gray600)),
-            const SizedBox(height: 12),
+            const Icon(Icons.home_work_outlined, size: 64, color: AppColors.gray400),
+            const SizedBox(height: 16),
+            const Text('暂无房源数据', style: TextStyle(color: AppColors.gray600)),
+            const SizedBox(height: 8),
+            Text(
+              houseState.error!,
+              style: const TextStyle(fontSize: 12, color: AppColors.gray400),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => ref.read(agentHouseListProvider.notifier).refresh(),
               child: const Text('重试'),

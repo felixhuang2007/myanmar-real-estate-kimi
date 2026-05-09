@@ -238,12 +238,15 @@ class _ClientListPageState extends ConsumerState<ClientListPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: AppColors.red500),
-            const SizedBox(height: 12),
-            Text(l.loadFailed, style: TextStyle(color: AppColors.gray700)),
-            const SizedBox(height: 4),
-            Text(_error!,
-                style: TextStyle(fontSize: 12, color: AppColors.gray500)),
+            const Icon(Icons.people_outline, size: 64, color: AppColors.gray400),
+            const SizedBox(height: 16),
+            Text(l.noData, style: TextStyle(color: AppColors.gray600)),
+            const SizedBox(height: 8),
+            Text(
+              _error!,
+              style: const TextStyle(fontSize: 12, color: AppColors.gray400),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => _loadClients(status),

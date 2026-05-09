@@ -145,8 +145,8 @@ class VerificationInfo with _$VerificationInfo {
 @freezed
 class HouseImage with _$HouseImage {
   const factory HouseImage({
-    @JsonKey(name: 'id') required int id,
-    @JsonKey(name: 'url') required String url,
+    @JsonKey(name: 'image_id') required int id,
+    @JsonKey(name: 'image_url') required String url,
     @JsonKey(name: 'type') @Default('interior') String type,
     @JsonKey(name: 'is_main') @Default(false) bool isMain,
   }) = _HouseImage;
@@ -271,7 +271,7 @@ class HouseSearchParams {
       if (houseType != null) 'house_type': houseType,
       if (rooms != null) 'rooms': rooms,
       if (decoration != null) 'decoration': decoration,
-      if (keywords != null) 'keywords': keywords,
+      if (keywords != null) 'keyword': keywords,
       if (sortBy != null) 'sort_by': sortBy,
       'page': page,
       'page_size': pageSize,

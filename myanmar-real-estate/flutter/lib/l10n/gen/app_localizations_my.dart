@@ -299,6 +299,15 @@ class AppLocalizationsMy extends AppLocalizations {
   String get roleCloser => 'ပိတ်သည်';
 
   @override
+  String get loginSubtitle => 'ဖုန်းနံပါတ်ဖြင့်ဝင်ရောက်ပါ';
+
+  @override
+  String get agreeToTerms => 'လော့ဂ်အင်ဝင်ခြင်းဖြင့်သင်သဘောတူပါသည်';
+
+  @override
+  String get andConnector => 'နှင့်';
+
+  @override
   String get selectLanguage => 'ဘာသာစကားရွေးချယ်ပါ';
 
   @override
@@ -315,4 +324,49 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get continueBtn => 'ဆက်လက်ရန်';
+
+  @override
+  String get verified => 'အတည်ပြုပြီး';
+
+  @override
+  String get guestUser => 'ဧည့်သည်';
+
+  @override
+  String get searchHistory => 'ရှာဖွေမှတ်တမ်း';
+
+  @override
+  String get clear => 'ရှင်းလင်းရန်';
+
+  @override
+  String get hotSearch => 'လူကြိုက်များသော';
+
+  @override
+  String get browsingHistory => 'ကြည့်ရှုမှတ်တမ်း';
+
+  @override
+  String get myAppointments => 'ကျွန်ုပ်စာရင်း';
+
+  @override
+  String get myListings => 'ကျွန်ုပ်စာရင်း';
+
+  @override
+  String get buyingGuide => 'ဝယ်ယူလမ်းညွှန်';
+
+  @override
+  String get helpAndSupport => 'အကူအညီအထောက်အပံ့';
+
+  @override
+  String get aboutUs => 'ကျွန်ုပ်တို့အကြောင်း';
+
+  @override
+  String get userAgreement => 'အသုံးပြုသူသဘောတူညီချက်';
+
+  @override
+  String get logoutConfirm => 'သင်ထွက်ရန်သေချာပါသလား?';
+
+  @override
+  String get views => 'ကြည့်ရှုမှု';
+
+  @override
+  String get appointments => 'ချိန်းဆိုမှုများ';
 }

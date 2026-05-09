@@ -48,8 +48,9 @@ _$PaginatedDataImpl<T> _$$PaginatedDataImplFromJson<T>(
 ) =>
     _$PaginatedDataImpl<T>(
       list: (json['list'] as List<dynamic>).map(fromJsonT).toList(),
-      pagination:
-          PaginationInfo.fromJson(json['pagination'] as Map<String, dynamic>),
+      pagination: json['pagination'] == null
+          ? const PaginationInfo()
+          : PaginationInfo.fromJson(json['pagination'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$PaginatedDataImplToJson<T>(

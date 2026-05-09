@@ -113,7 +113,11 @@ class AgentHomePage extends ConsumerWidget {
               ),
               // 通知
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Notifications coming soon')),
+                  );
+                },
                 icon: const Icon(
                   Icons.notifications_outlined,
                   color: AppColors.white,
@@ -190,7 +194,6 @@ class AgentHomePage extends ConsumerWidget {
 
   /// 统计数据
   Widget _buildStatistics(BuildContext context) {
-    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -299,7 +302,9 @@ class AgentHomePage extends ConsumerWidget {
                     ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push(RouteNames.agentAppointments);
+                },
                 child: const Text('查看全部'),
               ),
             ],
@@ -311,6 +316,9 @@ class AgentHomePage extends ConsumerWidget {
             title: l.todaySchedule,
             subtitle: '3个预约待确认',
             color: AppColors.orange500,
+            onTap: () {
+              context.push(RouteNames.agentAppointments);
+            },
           ),
           const SizedBox(height: 8),
           _buildTodoItem(
@@ -319,6 +327,9 @@ class AgentHomePage extends ConsumerWidget {
             title: l.verificationTask,
             subtitle: '2个房源待验真',
             color: AppColors.green500,
+            onTap: () {
+              context.push(RouteNames.agentVerification);
+            },
           ),
           const SizedBox(height: 8),
           _buildTodoItem(
@@ -327,6 +338,11 @@ class AgentHomePage extends ConsumerWidget {
             title: '客户消息',
             subtitle: '5条未读消息',
             color: AppColors.blue500,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Messages coming soon')),
+              );
+            },
           ),
         ],
       ),
@@ -339,51 +355,55 @@ class AgentHomePage extends ConsumerWidget {
     required String title,
     required String subtitle,
     required Color color,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        boxShadow: AppShadows.sm,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          boxShadow: AppShadows.sm,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color),
             ),
-            child: Icon(icon, color: color),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.gray600,
-                      ),
-                ),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.gray600,
+                        ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Icon(
-            Icons.chevron_right,
-            color: AppColors.gray400,
-          ),
-        ],
+            const Icon(
+              Icons.chevron_right,
+              color: AppColors.gray400,
+            ),
+          ],
+        ),
       ),
     );
   }

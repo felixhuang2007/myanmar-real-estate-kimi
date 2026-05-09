@@ -16,8 +16,8 @@ type AppointmentRepository interface {
 	GetAppointmentByID(ctx context.Context, id int64) (*model.Appointment, error)
 	GetAppointmentByCode(ctx context.Context, code string) (*model.Appointment, error)
 	UpdateAppointment(ctx context.Context, appointment *model.Appointment) error
-	GetAppointmentsByAgent(ctx context.Context, agentID int64, status string, page, pageSize int) ([]*model.Appointment, int64, error)
-	GetAppointmentsByUser(ctx context.Context, userID int64, status string, page, pageSize int) ([]*model.Appointment, int64, error)
+	GetAppointmentsByAgent(ctx context.Context, agentID int64, status string, startDate, endDate string, page, pageSize int) ([]*model.Appointment, int64, error)
+	GetAppointmentsByUser(ctx context.Context, userID int64, status string, startDate, endDate string, page, pageSize int) ([]*model.Appointment, int64, error)
 	CheckConflict(ctx context.Context, agentID int64, date time.Time, timeSlot string) (bool, error)
 
 	// 日程
@@ -70,7 +70,7 @@ func (r *appointmentRepository) UpdateAppointment(ctx context.Context, appointme
 }
 
 // GetAppointmentsByAgent 获取经纪人的预约
-func (r *appointmentRepository) GetAppointmentsByAgent(ctx context.Context, agentID int64, status string, page, pageSize int) ([]*model.Appointment, int64, error) {
+func (r *appointmentRepository) GetAppointmentsByAgent(ctx context.Context, agentID int64, status string, startDate, endDate string, page, pageSize int) ([]*model.Appointment, int64, error) {
 	var appointments []*model.Appointment
 	var total int64
 
@@ -78,6 +78,12 @@ func (r *appointmentRepository) GetAppointmentsByAgent(ctx context.Context, agen
 
 	if status != "" {
 		db = db.Where("status = ?", status)
+	}
+	if startDate != "" {
+		db = db.Where("appointment_date >= ?", startDate)
+	}
+	if endDate != "" {
+		db = db.Where("appointment_date <= ?", endDate)
 	}
 
 	if err := db.Count(&total).Error; err != nil {
@@ -93,7 +99,7 @@ func (r *appointmentRepository) GetAppointmentsByAgent(ctx context.Context, agen
 }
 
 // GetAppointmentsByUser 获取用户的预约
-func (r *appointmentRepository) GetAppointmentsByUser(ctx context.Context, userID int64, status string, page, pageSize int) ([]*model.Appointment, int64, error) {
+func (r *appointmentRepository) GetAppointmentsByUser(ctx context.Context, userID int64, status string, startDate, endDate string, page, pageSize int) ([]*model.Appointment, int64, error) {
 	var appointments []*model.Appointment
 	var total int64
 
@@ -101,6 +107,12 @@ func (r *appointmentRepository) GetAppointmentsByUser(ctx context.Context, userI
 
 	if status != "" {
 		db = db.Where("status = ?", status)
+	}
+	if startDate != "" {
+		db = db.Where("appointment_date >= ?", startDate)
+	}
+	if endDate != "" {
+		db = db.Where("appointment_date <= ?", endDate)
 	}
 
 	if err := db.Count(&total).Error; err != nil {

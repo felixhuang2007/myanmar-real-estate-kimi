@@ -71,10 +71,10 @@ class RouteNames {
   static const String agentHouseAdd = '/agent/houses/add';
   static const String agentHouseEdit = '/agent/houses/edit/:id';
   static const String agentClients = '/agent/clients';
-  static const String agentAppointments = '/agent/appointments';
+  static const String agentAppointments = '/agent/schedule';
   static const String agentSchedule = '/agent/schedule';
   static const String agentVerification = '/agent/verification';
-  static const String agentAcn = '/agent/acn';
+  static const String agentAcn = '/agent/acn-deal';
   static const String agentPerformance = '/agent/performance';
   static const String agentSettings = '/agent/settings';
 }

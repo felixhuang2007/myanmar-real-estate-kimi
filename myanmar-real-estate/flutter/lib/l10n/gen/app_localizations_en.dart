@@ -299,6 +299,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleCloser => 'Closer';
 
   @override
+  String get loginSubtitle => 'Login with your phone number';
+
+  @override
+  String get agreeToTerms => 'By logging in, you agree to';
+
+  @override
+  String get andConnector => 'and';
+
+  @override
   String get selectLanguage => 'Select Language';
 
   @override
@@ -315,4 +324,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get continueBtn => 'Continue';
+
+  @override
+  String get verified => 'Verified';
+
+  @override
+  String get guestUser => 'Guest';
+
+  @override
+  String get searchHistory => 'Search History';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get hotSearch => 'Hot Search';
+
+  @override
+  String get browsingHistory => 'Browsing History';
+
+  @override
+  String get myAppointments => 'My Appointments';
+
+  @override
+  String get myListings => 'My Listings';
+
+  @override
+  String get buyingGuide => 'Buying Guide';
+
+  @override
+  String get helpAndSupport => 'Help & Support';
+
+  @override
+  String get aboutUs => 'About Us';
+
+  @override
+  String get userAgreement => 'User Agreement';
+
+  @override
+  String get logoutConfirm => 'Are you sure you want to logout?';
+
+  @override
+  String get views => 'Views';
+
+  @override
+  String get appointments => 'Appointments';
 }

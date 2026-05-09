@@ -28,6 +28,11 @@ Thumbs.db
 # Build outputs
 backend/server
 backend/server.exe
+backend/server_new
+backend/server_linux
+myanmar-real-estate/backend/server
+myanmar-real-estate/backend/server_new
+myanmar-real-estate/backend/server_linux
 flutter/build/
 frontend/web-admin/dist/
 frontend/web-admin/node_modules/
@@ -55,6 +60,12 @@ myanmar-real-estate/backend/.env*
 # Temporary files
 tmp/
 temp/
+*.apk
+myanmar-real-estate/*.apk
+myanmar-real-estate/qa/scripts/.test-token-cache.json
+myanmar-real-estate/qa/scripts/EOF
+myanmar-real-estate/qa/scripts/p0-regression-result-*.json
+myanmar-real-estate/qa/scripts/p1-test-result-*.json
 
 # Git worktrees
 .worktrees/

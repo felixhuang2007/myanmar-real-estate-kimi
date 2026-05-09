@@ -94,6 +94,8 @@ func (c *ACNController) CreateTransaction(ctx *gin.Context) {
 func (c *ACNController) GetTransactions(ctx *gin.Context) {
 	userID := ctx.GetInt64("user_id")
 	status := ctx.DefaultQuery("status", "")
+	startDate := ctx.DefaultQuery("startDate", "")
+	endDate := ctx.DefaultQuery("endDate", "")
 	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("pageSize", "20"))
 
@@ -104,7 +106,7 @@ func (c *ACNController) GetTransactions(ctx *gin.Context) {
 		pageSize = 20
 	}
 
-	list, total, err := c.service.GetTransactions(ctx, userID, status, page, pageSize)
+	list, total, err := c.service.GetTransactions(ctx, userID, status, startDate, endDate, page, pageSize)
 	if err != nil {
 		if appErr, ok := err.(*common.AppError); ok {
 			common.ErrorResponse(ctx, appErr)
@@ -317,6 +319,8 @@ func (c *ACNController) GetCommissionDetails(ctx *gin.Context) {
 func (c *ACNController) GetDeals(ctx *gin.Context) {
 	userID := ctx.GetInt64("user_id")
 	status := ctx.DefaultQuery("status", "")
+	startDate := ctx.DefaultQuery("startDate", "")
+	endDate := ctx.DefaultQuery("endDate", "")
 	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("pageSize", "20"))
 
@@ -328,7 +332,7 @@ func (c *ACNController) GetDeals(ctx *gin.Context) {
 	}
 
 	// 调用service获取成交列表
-	list, total, err := c.service.GetTransactions(ctx, userID, status, page, pageSize)
+	list, total, err := c.service.GetTransactions(ctx, userID, status, startDate, endDate, page, pageSize)
 	if err != nil {
 		if appErr, ok := err.(*common.AppError); ok {
 			common.ErrorResponse(ctx, appErr)

@@ -43,6 +43,7 @@ import (
 	uploadSvcPkg "myanmar-property/backend/11-upload-service"
 
 	clientController "myanmar-property/backend/12-client-service/controller"
+	clientModel "myanmar-property/backend/12-client-service"
 	clientRepository "myanmar-property/backend/12-client-service/repository"
 	clientSvc "myanmar-property/backend/12-client-service/service"
 
@@ -51,6 +52,7 @@ import (
 	opsSvc "myanmar-property/backend/13-ops-service/service"
 
 	promoterController "myanmar-property/backend/14-promoter-service/controller"
+	promoterModel "myanmar-property/backend/14-promoter-service/model"
 	promoterRepository "myanmar-property/backend/14-promoter-service/repository"
 	promoterSvc "myanmar-property/backend/14-promoter-service/service"
 )
@@ -80,6 +82,22 @@ func main() {
 	} else {
 		common.Info("数据库初始化成功")
 		fmt.Println("[INFO] 数据库初始化成功") // 添加显式输出
+		// 自动迁移核心表（确保新表存在）
+		if err := db.AutoMigrate(
+			&houseService.House{},
+			&houseService.HouseImage{},
+			&clientModel.Client{},
+			&clientModel.FollowUpRecord{},
+			&promoterModel.Promoter{},
+			&promoterModel.ReferralRecord{},
+			&promoterModel.WithdrawalRecord{},
+		); err != nil {
+			common.Warn("数据库AutoMigrate失败", common.ErrorField(err))
+			fmt.Printf("[WARN] 数据库AutoMigrate失败: %v\n", err)
+		} else {
+			common.Info("数据库AutoMigrate完成")
+			fmt.Println("[INFO] 数据库AutoMigrate完成")
+		}
 	}
 
 	// 初始化Redis（失败时继续运行）

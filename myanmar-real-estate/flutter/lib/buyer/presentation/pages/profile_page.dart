@@ -6,14 +6,57 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/api/dio_client.dart';
 import '../../providers/auth_provider.dart';
 import '../../../l10n/gen/app_localizations.dart';
 
-class ProfilePage extends ConsumerWidget {
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends ConsumerState<ProfilePage> {
+  int _favoritesCount = 0;
+  int _viewsCount = 0;
+  int _appointmentsCount = 0;
+  bool _statsLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final favResponse = await DioClient.instance.get('/users/me/favorites?page_size=1');
+      final favTotal = favResponse.data?['data']?['pagination']?['total'] ?? 0;
+
+      final histResponse = await DioClient.instance.get('/users/me/browsing-history?page_size=1');
+      final histTotal = histResponse.data?['data']?['pagination']?['total'] ?? 0;
+
+      final apptResponse = await DioClient.instance.get('/appointments?page_size=1');
+      final apptTotal = apptResponse.data?['data']?['pagination']?['total'] ?? 0;
+
+      if (mounted) {
+        setState(() {
+          _favoritesCount = favTotal is int ? favTotal : 0;
+          _viewsCount = histTotal is int ? histTotal : 0;
+          _appointmentsCount = apptTotal is int ? apptTotal : 0;
+          _statsLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _statsLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final user = ref.watch(authProvider).user;
 
@@ -25,17 +68,17 @@ class ProfilePage extends ConsumerWidget {
           SliverToBoxAdapter(
             child: _buildHeader(context, user),
           ),
-          
+
           // 数据统计
           SliverToBoxAdapter(
             child: _buildStats(context),
           ),
-          
+
           // 功能列表
           SliverToBoxAdapter(
             child: _buildMenuSection(context),
           ),
-          
+
           // 底部留白
           const SliverToBoxAdapter(
             child: SizedBox(height: 32),
@@ -47,6 +90,7 @@ class ProfilePage extends ConsumerWidget {
 
   /// 顶部信息
   Widget _buildHeader(BuildContext context, dynamic user) {
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
       decoration: BoxDecoration(
@@ -72,7 +116,11 @@ class ProfilePage extends ConsumerWidget {
                 icon: const Icon(Icons.settings, color: AppColors.white),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Notifications coming soon')),
+                  );
+                },
                 icon: const Icon(Icons.notifications, color: AppColors.white),
               ),
             ],
@@ -104,7 +152,7 @@ class ProfilePage extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user?.profile?.nickname ?? user?.phone ?? '游客用户',
+                      user?.profile?.nickname ?? user?.phone ?? l.guestUser,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.bold,
@@ -136,7 +184,7 @@ class ProfilePage extends ConsumerWidget {
                           Icon(Icons.verified, size: 12, color: AppColors.white),
                           const SizedBox(width: 2),
                           Text(
-                            '已认证',
+                            l.verified,
                             style: TextStyle(
                               fontSize: 11,
                               color: AppColors.white,
@@ -151,7 +199,9 @@ class ProfilePage extends ConsumerWidget {
               
               // 编辑按钮
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/buyer/edit-profile');
+                },
                 icon: Icon(Icons.edit, color: AppColors.white.withOpacity(0.8)),
               ),
             ],
@@ -163,10 +213,11 @@ class ProfilePage extends ConsumerWidget {
 
   /// 统计数据
   Widget _buildStats(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final stats = [
-      {'value': '12', 'label': '收藏'},
-      {'value': '128', 'label': '浏览'},
-      {'value': '3', 'label': '预约'},
+      {'value': _statsLoading ? '...' : '$_favoritesCount', 'label': l.favorites, 'route': '/buyer/favorites'},
+      {'value': _statsLoading ? '...' : '$_viewsCount', 'label': l.views, 'route': '/buyer/browsing-history'},
+      {'value': _statsLoading ? '...' : '$_appointmentsCount', 'label': l.appointments, 'route': '/buyer/my-appointments'},
     ];
 
     return Container(
@@ -187,7 +238,12 @@ class ProfilePage extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: stats.map((stat) {
           return GestureDetector(
-            onTap: () {},
+            onTap: () {
+              final route = stat['route'] as String?;
+              if (route != null) {
+                context.push(route);
+              }
+            },
             child: Column(
               children: [
                 Text(
@@ -229,18 +285,24 @@ class ProfilePage extends ConsumerWidget {
             ),
             _MenuItem(
               icon: Icons.history,
-              title: '浏览历史',
-              onTap: () {},
+              title: l.browsingHistory,
+              onTap: () {
+                context.push('/buyer/browsing-history');
+              },
             ),
             _MenuItem(
               icon: Icons.calendar_today,
-              title: '我的预约',
-              onTap: () {},
+              title: l.myAppointments,
+              onTap: () {
+                context.push('/buyer/my-appointments');
+              },
             ),
             _MenuItem(
               icon: Icons.home_work,
-              title: '我的发布',
-              onTap: () {},
+              title: l.myListings,
+              onTap: () {
+                context.push('/buyer/my-listings');
+              },
             ),
           ],
         ),
@@ -250,20 +312,24 @@ class ProfilePage extends ConsumerWidget {
           items: [
             _MenuItem(
               icon: Icons.calculate,
-              title: '房贷计算器',
+              title: l.mortgageCalc,
               onTap: () {
                 context.push('/buyer/mortgage');
               },
             ),
             _MenuItem(
               icon: Icons.menu_book,
-              title: '购房指南',
-              onTap: () {},
+              title: l.buyingGuide,
+              onTap: () {
+                context.push('/buyer/buying-guide');
+              },
             ),
             _MenuItem(
               icon: Icons.headset_mic,
-              title: '帮助与客服',
-              onTap: () {},
+              title: l.helpAndSupport,
+              onTap: () {
+                context.push('/buyer/help-support');
+              },
             ),
           ],
         ),
@@ -273,18 +339,24 @@ class ProfilePage extends ConsumerWidget {
           items: [
             _MenuItem(
               icon: Icons.info_outline,
-              title: '关于我们',
-              onTap: () {},
+              title: l.aboutUs,
+              onTap: () {
+                context.push('/buyer/about-us');
+              },
             ),
             _MenuItem(
               icon: Icons.description,
-              title: '用户协议',
-              onTap: () {},
+              title: l.userAgreement,
+              onTap: () {
+                context.push('/buyer/terms');
+              },
             ),
             _MenuItem(
               icon: Icons.privacy_tip,
-              title: '隐私政策',
-              onTap: () {},
+              title: l.privacyPolicy,
+              onTap: () {
+                context.push('/buyer/privacy');
+              },
             ),
           ],
         ),
@@ -345,7 +417,7 @@ class ProfilePage extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l.logout),
-        content: const Text('确定要退出登录吗？'),
+        content: Text(l.logoutConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

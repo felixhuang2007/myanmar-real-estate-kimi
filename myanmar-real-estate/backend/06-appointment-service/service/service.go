@@ -15,7 +15,7 @@ type AppointmentService interface {
 	// 预约管理
 	CreateAppointment(ctx context.Context, userID int64, req *model.CreateAppointmentRequest) (*model.Appointment, error)
 	GetAppointment(ctx context.Context, appointmentID int64) (*model.Appointment, error)
-	GetAppointments(ctx context.Context, userID int64, role string, status string, page, pageSize int) ([]*model.Appointment, int64, error)
+	GetAppointments(ctx context.Context, userID int64, role string, status string, startDate, endDate string, page, pageSize int) ([]*model.Appointment, int64, error)
 	ConfirmAppointment(ctx context.Context, agentID, appointmentID int64) error
 	RejectAppointment(ctx context.Context, agentID, appointmentID int64, reason string, suggestedTime string) error
 	CancelAppointment(ctx context.Context, userID int64, appointmentID int64, reason string) error
@@ -141,15 +141,15 @@ func (s *appointmentService) GetAppointment(ctx context.Context, appointmentID i
 }
 
 // GetAppointments 获取预约列表
-func (s *appointmentService) GetAppointments(ctx context.Context, userID int64, role string, status string, page, pageSize int) ([]*model.Appointment, int64, error) {
+func (s *appointmentService) GetAppointments(ctx context.Context, userID int64, role string, status string, startDate, endDate string, page, pageSize int) ([]*model.Appointment, int64, error) {
 	if role == "agent" {
 		// 查询经纪人的预约
 		// 简化实现，实际需要根据agentID查询
-		return s.appointmentRepo.GetAppointmentsByAgent(ctx, userID, status, page, pageSize)
+		return s.appointmentRepo.GetAppointmentsByAgent(ctx, userID, status, startDate, endDate, page, pageSize)
 	}
 
 	// 查询用户的预约
-	return s.appointmentRepo.GetAppointmentsByUser(ctx, userID, status, page, pageSize)
+	return s.appointmentRepo.GetAppointmentsByUser(ctx, userID, status, startDate, endDate, page, pageSize)
 }
 
 // ConfirmAppointment 确认预约

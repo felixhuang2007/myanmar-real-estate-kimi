@@ -20,7 +20,7 @@ type ACNService interface {
 	// 成交单管理
 	CreateTransaction(ctx context.Context, req *CreateTransactionRequest) (*model.ACNTransaction, error)
 	GetTransaction(ctx context.Context, transactionID int64) (*model.ACNTransaction, error)
-	GetTransactions(ctx context.Context, agentID int64, status string, page, pageSize int) ([]*model.ACNTransaction, int64, error)
+	GetTransactions(ctx context.Context, agentID int64, status string, startDate, endDate string, page, pageSize int) ([]*model.ACNTransaction, int64, error)
 	ConfirmTransaction(ctx context.Context, agentID, transactionID int64) error
 	RejectTransaction(ctx context.Context, agentID, transactionID int64, reason string) error
 
@@ -242,8 +242,8 @@ func (s *acnService) GetTransaction(ctx context.Context, transactionID int64) (*
 }
 
 // GetTransactions 获取成交单列表
-func (s *acnService) GetTransactions(ctx context.Context, agentID int64, status string, page, pageSize int) ([]*model.ACNTransaction, int64, error) {
-	return s.acnRepo.GetTransactionsByAgent(ctx, agentID, status, page, pageSize)
+func (s *acnService) GetTransactions(ctx context.Context, agentID int64, status string, startDate, endDate string, page, pageSize int) ([]*model.ACNTransaction, int64, error) {
+	return s.acnRepo.GetTransactionsByAgent(ctx, agentID, status, startDate, endDate, page, pageSize)
 }
 
 // ConfirmTransaction 确认成交单

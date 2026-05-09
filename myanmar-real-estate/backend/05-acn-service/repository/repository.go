@@ -18,7 +18,7 @@ type ACNRepository interface {
 	GetTransactionByID(ctx context.Context, id int64) (*model.ACNTransaction, error)
 	GetTransactionByCode(ctx context.Context, code string) (*model.ACNTransaction, error)
 	UpdateTransaction(ctx context.Context, transaction *model.ACNTransaction) error
-	GetTransactionsByAgent(ctx context.Context, agentID int64, status string, page, pageSize int) ([]*model.ACNTransaction, int64, error)
+	GetTransactionsByAgent(ctx context.Context, agentID int64, status string, startDate, endDate string, page, pageSize int) ([]*model.ACNTransaction, int64, error)
 
 	// 分佣明细
 	CreateCommissionDetail(ctx context.Context, detail *model.ACNCommissionDetail) error
@@ -89,7 +89,7 @@ func (r *acnRepository) UpdateTransaction(ctx context.Context, transaction *mode
 }
 
 // GetTransactionsByAgent 获取经纪人的成交单
-func (r *acnRepository) GetTransactionsByAgent(ctx context.Context, agentID int64, status string, page, pageSize int) ([]*model.ACNTransaction, int64, error) {
+func (r *acnRepository) GetTransactionsByAgent(ctx context.Context, agentID int64, status string, startDate, endDate string, page, pageSize int) ([]*model.ACNTransaction, int64, error) {
 	var transactions []*model.ACNTransaction
 	var total int64
 
@@ -99,6 +99,12 @@ func (r *acnRepository) GetTransactionsByAgent(ctx context.Context, agentID int6
 
 	if status != "" {
 		db = db.Where("status = ?", status)
+	}
+	if startDate != "" {
+		db = db.Where("deal_date >= ?", startDate)
+	}
+	if endDate != "" {
+		db = db.Where("deal_date <= ?", endDate)
 	}
 
 	if err := db.Count(&total).Error; err != nil {

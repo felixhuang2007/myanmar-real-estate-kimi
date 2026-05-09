@@ -163,6 +163,13 @@ func (r *houseRepository) FindByID(ctx context.Context, id int64) (*House, error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
+	if err == nil && len(house.Images) == 0 {
+		house.Images = []HouseImage{
+			{ImageURL: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=500&fit=crop", IsMain: true, Type: "exterior"},
+			{ImageURL: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=500&fit=crop", Type: "interior"},
+			{ImageURL: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=500&fit=crop", Type: "interior"},
+		}
+	}
 	return &house, err
 }
 
@@ -299,7 +306,19 @@ func (r *houseRepository) GetRecommendations(ctx context.Context, cityCode strin
 
 	err := db.Order("is_featured DESC, view_count DESC, created_at DESC").
 		Limit(limit).
+		Preload("Images").
 		Find(&houses).Error
+
+	// 测试环境：为没有图片的房源填充默认图片
+	for i := range houses {
+		if len(houses[i].Images) == 0 {
+			houses[i].Images = []HouseImage{
+				{ImageURL: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=500&fit=crop", IsMain: true, Type: "exterior"},
+				{ImageURL: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=500&fit=crop", Type: "interior"},
+				{ImageURL: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=500&fit=crop", Type: "interior"},
+			}
+		}
+	}
 
 	return houses, err
 }
@@ -363,10 +382,13 @@ func (r *houseRepository) MapAggregate(ctx context.Context, params *MapSearchPar
 
 // FindByAgent 获取经纪人的房源
 func (r *houseRepository) FindByAgent(ctx context.Context, agentID int64, status string, page, pageSize int) ([]*House, int64, error) {
+	if r.db == nil {
+		return nil, 0, fmt.Errorf("houseRepository.db is nil")
+	}
 	var houses []*House
 	var total int64
 
-	db := r.db.WithContext(ctx).Where("entrant_id = ? OR maintainer_id = ?", agentID, agentID)
+	db := r.db.WithContext(ctx).Model(&House{}).Where("entrant_id = ? OR maintainer_id = ?", agentID, agentID)
 
 	if status != "" {
 		db = db.Where("status = ?", status)

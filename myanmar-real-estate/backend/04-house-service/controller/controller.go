@@ -2,6 +2,7 @@ package controller
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -11,6 +12,37 @@ import (
 	userService "myanmar-property/backend/03-user-service/service"
 	"myanmar-property/backend/07-common"
 )
+
+// defaultHouseImages 测试环境默认房源图片
+var defaultHouseImages = []service.HouseImage{
+	{ImageURL: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=500&fit=crop", IsMain: true, Type: "exterior"},
+	{ImageURL: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=500&fit=crop", Type: "interior"},
+	{ImageURL: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=500&fit=crop", Type: "interior"},
+}
+
+// sanitizeHouse 清理房源数据：替换无效图片、修改货币等
+func sanitizeHouse(house *service.House) {
+	// 替换无效图片URL
+	for i := range house.Images {
+		if strings.Contains(house.Images[i].ImageURL, "example.com") {
+			house.Images[i].ImageURL = defaultHouseImages[i%len(defaultHouseImages)].ImageURL
+		}
+	}
+	// 货币统一为缅元
+	if house.PriceUnit == "USD" {
+		house.PriceUnit = "MMK"
+	}
+}
+
+// fillDefaultImages 为没有图片的房源填充默认图片
+func fillDefaultImages(houses []*service.House) {
+	for _, house := range houses {
+		if len(house.Images) == 0 {
+			house.Images = defaultHouseImages
+		}
+		sanitizeHouse(house)
+	}
+}
 
 // HouseController 房源控制器
 type HouseController struct {
@@ -88,6 +120,8 @@ func (c *HouseController) GetRecommendations(ctx *gin.Context) {
 		}
 		return
 	}
+
+	fillDefaultImages(houses)
 
 	common.Success(ctx, gin.H{
 		"list": houses,
@@ -249,6 +283,13 @@ func (c *HouseController) GetHouseDetail(ctx *gin.Context) {
 			common.ServerError(ctx)
 		}
 		return
+	}
+
+	if house != nil {
+		if len(house.Images) == 0 {
+			house.Images = defaultHouseImages
+		}
+		sanitizeHouse(house)
 	}
 
 	common.Success(ctx, house)

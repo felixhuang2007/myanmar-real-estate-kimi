@@ -204,7 +204,9 @@ class HomePage extends ConsumerWidget {
           const SizedBox(width: 12),
           // 消息
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              context.push('/buyer/chats');
+            },
             icon: const Icon(
               Icons.notifications_outlined,
               color: AppColors.gray700,

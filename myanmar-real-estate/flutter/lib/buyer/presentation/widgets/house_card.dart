@@ -156,12 +156,39 @@ class HouseCard extends StatelessWidget {
 
   Widget _buildPlaceholder() {
     return Container(
-      color: AppColors.gray100,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.gray200,
+            AppColors.gray300,
+          ],
+        ),
+      ),
       child: Center(
-        child: Icon(
-          Icons.image_outlined,
-          size: 40,
-          color: AppColors.gray400,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.home_outlined,
+              size: 48,
+              color: AppColors.gray500,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              house.houseType == 'apartment'
+                  ? 'Apartment'
+                  : house.houseType == 'house'
+                      ? 'House'
+                      : 'Property',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.gray500,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );

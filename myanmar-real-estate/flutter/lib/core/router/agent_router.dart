@@ -20,10 +20,19 @@ import '../../agent/presentation/pages/performance_page.dart';
 import '../../agent/presentation/pages/agent_profile_page.dart';
 import '../../agent/presentation/pages/agent_login_page.dart';
 import '../../agent/presentation/pages/promoter_page.dart';
+import '../../agent/presentation/pages/agent_wallet_page.dart';
+import '../../agent/presentation/pages/agent_level_page.dart';
+import '../../agent/presentation/pages/agent_team_page.dart';
+import '../../agent/presentation/pages/agent_training_page.dart';
+import '../../agent/presentation/pages/agent_customer_service_page.dart';
 import '../../buyer/presentation/pages/chat_page.dart';
+import '../../buyer/presentation/pages/settings_page.dart';
+import '../../buyer/presentation/pages/edit_profile_page.dart';
+import '../../buyer/presentation/pages/static_content_page.dart';
 import '../../buyer/providers/auth_provider.dart';
 import '../../shared/pages/language_selection_page.dart';
 import '../storage/local_storage.dart';
+import '../../l10n/gen/app_localizations.dart';
 
 /// 监听认证状态变化，通知GoRouter重新评估redirect
 class _AgentAuthListenable extends ChangeNotifier {
@@ -193,6 +202,72 @@ final agentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/agent/promoter',
         builder: (context, state) => const PromoterPage(),
+      ),
+
+      // 我的钱包
+      GoRoute(
+        path: '/agent/wallet',
+        builder: (context, state) => const AgentWalletPage(),
+      ),
+
+      // 等级权益
+      GoRoute(
+        path: '/agent/level',
+        builder: (context, state) => const AgentLevelPage(),
+      ),
+
+      // 我的团队
+      GoRoute(
+        path: '/agent/team',
+        builder: (context, state) => const AgentTeamPage(),
+      ),
+
+      // 培训学习
+      GoRoute(
+        path: '/agent/training',
+        builder: (context, state) => const AgentTrainingPage(),
+      ),
+
+      // 联系客服
+      GoRoute(
+        path: '/agent/customer-service',
+        builder: (context, state) => const AgentCustomerServicePage(),
+      ),
+
+      // 设置
+      GoRoute(
+        path: '/agent/settings',
+        builder: (context, state) => const SettingsPage(),
+      ),
+
+      // 编辑资料
+      GoRoute(
+        path: '/agent/edit-profile',
+        builder: (context, state) => const EditProfilePage(),
+      ),
+
+      // 帮助与客服
+      GoRoute(
+        path: '/agent/help-support',
+        builder: (context, state) {
+          final l = AppLocalizations.of(context);
+          return StaticContentPage(
+            title: l.helpAndSupport,
+            contentType: 'help-support',
+          );
+        },
+      ),
+
+      // 关于我们
+      GoRoute(
+        path: '/agent/about-us',
+        builder: (context, state) {
+          final l = AppLocalizations.of(context);
+          return StaticContentPage(
+            title: l.aboutUs,
+            contentType: 'about-us',
+          );
+        },
       ),
 
       // 聊天 (经纪人侧，通过conversationId进入)

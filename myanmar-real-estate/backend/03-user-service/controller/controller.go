@@ -11,6 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 
+	userModel "myanmar-property/backend/03-user-service/model"
 	"myanmar-property/backend/03-user-service/service"
 	"myanmar-property/backend/07-common"
 )
@@ -81,6 +82,10 @@ func (c *UserController) RegisterRoutes(r *gin.RouterGroup) {
 		// 上传
 		users.POST("/upload/token", c.GetUploadToken)
 		users.GET("/upload/token", c.GetUploadToken)
+
+		// 浏览历史
+		users.GET("/me/browsing-history", c.GetBrowsingHistory)
+		users.POST("/me/browsing-history", c.AddBrowsingHistory)
 		users.DELETE("/me/browsing-history", c.ClearBrowsingHistory)
 	}
 
@@ -470,36 +475,204 @@ func (c *UserController) GetVerificationStatus(ctx *gin.Context) {
 
 // GetFavorites 获取收藏列表
 func (c *UserController) GetFavorites(ctx *gin.Context) {
-	// 简化实现，实际需要调用房源服务
-	common.Success(ctx, gin.H{"list": []interface{}{}})
+	userID := ctx.GetInt64("user_id")
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "100"))
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 || pageSize > 100 {
+		pageSize = 100
+	}
+
+	var favorites []userModel.UserFavorite
+	var total int64
+
+	if c.db != nil {
+		c.db.WithContext(ctx).Model(&userModel.UserFavorite{}).Where("user_id = ?", userID).Count(&total)
+		c.db.WithContext(ctx).Where("user_id = ?", userID).
+			Order("created_at DESC").
+			Offset((page - 1) * pageSize).Limit(pageSize).
+			Find(&favorites)
+	}
+
+	houseIDs := make([]int64, 0, len(favorites))
+	for _, f := range favorites {
+		houseIDs = append(houseIDs, f.HouseID)
+	}
+
+	common.Success(ctx, gin.H{
+		"list": houseIDs,
+		"pagination": gin.H{
+			"page":      page,
+			"page_size": pageSize,
+			"total":     total,
+			"has_more":  total > int64(page*pageSize),
+		},
+	})
 }
 
 // AddFavorite 添加收藏
 func (c *UserController) AddFavorite(ctx *gin.Context) {
-	// 简化实现
+	userID := ctx.GetInt64("user_id")
+
+	var req struct {
+		HouseID int64 `json:"house_id" binding:"required"`
+	}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		common.BadRequest(ctx, err.Error())
+		return
+	}
+
+	if c.db != nil {
+		var existing userModel.UserFavorite
+		err := c.db.WithContext(ctx).Where("user_id = ? AND house_id = ?", userID, req.HouseID).First(&existing).Error
+		if err == nil {
+			common.Success(ctx, gin.H{"message": "already favorited"})
+			return
+		}
+
+		favorite := userModel.UserFavorite{
+			UserID:  userID,
+			HouseID: req.HouseID,
+		}
+		if err := c.db.WithContext(ctx).Create(&favorite).Error; err != nil {
+			common.ServerError(ctx)
+			return
+		}
+	}
+
 	common.Success(ctx, nil)
 }
 
 // RemoveFavorite 取消收藏
 func (c *UserController) RemoveFavorite(ctx *gin.Context) {
-	// 简化实现
+	userID := ctx.GetInt64("user_id")
+	houseIDStr := ctx.Param("house_id")
+	houseID, err := strconv.ParseInt(houseIDStr, 10, 64)
+	if err != nil {
+		common.BadRequest(ctx, "无效的房源ID")
+		return
+	}
+
+	if c.db != nil {
+		if err := c.db.WithContext(ctx).Where("user_id = ? AND house_id = ?", userID, houseID).Delete(&userModel.UserFavorite{}).Error; err != nil {
+			common.ServerError(ctx)
+			return
+		}
+	}
+
 	common.Success(ctx, nil)
 }
 
 // CheckFavorite 检查房源是否已收藏
 func (c *UserController) CheckFavorite(ctx *gin.Context) {
-	common.Success(ctx, gin.H{"is_favorited": false})
+	userID := ctx.GetInt64("user_id")
+	houseIDStr := ctx.Param("house_id")
+	houseID, err := strconv.ParseInt(houseIDStr, 10, 64)
+	if err != nil {
+		common.BadRequest(ctx, "无效的房源ID")
+		return
+	}
+
+	isFavorited := false
+	if c.db != nil {
+		var existing userModel.UserFavorite
+		if err := c.db.WithContext(ctx).Where("user_id = ? AND house_id = ?", userID, houseID).First(&existing).Error; err == nil {
+			isFavorited = true
+		}
+	}
+
+	common.Success(ctx, gin.H{"is_favorited": isFavorited})
 }
 
 // GetBrowsingHistory 获取浏览历史
 func (c *UserController) GetBrowsingHistory(ctx *gin.Context) {
-	// 简化实现
-	common.Success(ctx, gin.H{"list": []interface{}{}})
+	userID := ctx.GetInt64("user_id")
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "50"))
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 || pageSize > 100 {
+		pageSize = 50
+	}
+
+	var histories []userModel.UserBrowsingHistory
+	var total int64
+
+	if c.db != nil {
+		c.db.WithContext(ctx).Model(&userModel.UserBrowsingHistory{}).Where("user_id = ?", userID).Count(&total)
+		c.db.WithContext(ctx).Where("user_id = ?", userID).
+			Order("last_viewed_at DESC").
+			Offset((page - 1) * pageSize).Limit(pageSize).
+			Find(&histories)
+	}
+
+	list := make([]gin.H, 0, len(histories))
+	for _, h := range histories {
+		list = append(list, gin.H{
+			"house_id":      h.HouseID,
+			"view_count":    h.ViewCount,
+			"last_viewed_at": h.LastViewedAt,
+		})
+	}
+
+	common.Success(ctx, gin.H{
+		"list": list,
+		"pagination": gin.H{
+			"page":      page,
+			"page_size": pageSize,
+			"total":     total,
+			"has_more":  total > int64(page*pageSize),
+		},
+	})
+}
+
+// AddBrowsingHistory 添加/更新浏览历史
+func (c *UserController) AddBrowsingHistory(ctx *gin.Context) {
+	userID := ctx.GetInt64("user_id")
+
+	var req struct {
+		HouseID int64 `json:"house_id" binding:"required"`
+	}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		common.BadRequest(ctx, err.Error())
+		return
+	}
+
+	if c.db != nil {
+		var existing userModel.UserBrowsingHistory
+		err := c.db.WithContext(ctx).Where("user_id = ? AND house_id = ?", userID, req.HouseID).First(&existing).Error
+		if err == nil {
+			existing.ViewCount++
+			existing.LastViewedAt = time.Now()
+			c.db.WithContext(ctx).Save(&existing)
+		} else {
+			history := userModel.UserBrowsingHistory{
+				UserID:       userID,
+				HouseID:      req.HouseID,
+				ViewCount:    1,
+				LastViewedAt: time.Now(),
+			}
+			c.db.WithContext(ctx).Create(&history)
+		}
+	}
+
+	common.Success(ctx, nil)
 }
 
 // ClearBrowsingHistory 清除浏览历史
 func (c *UserController) ClearBrowsingHistory(ctx *gin.Context) {
-	// 简化实现
+	userID := ctx.GetInt64("user_id")
+
+	if c.db != nil {
+		if err := c.db.WithContext(ctx).Where("user_id = ?", userID).Delete(&userModel.UserBrowsingHistory{}).Error; err != nil {
+			common.ServerError(ctx)
+			return
+		}
+	}
+
 	common.Success(ctx, nil)
 }
 

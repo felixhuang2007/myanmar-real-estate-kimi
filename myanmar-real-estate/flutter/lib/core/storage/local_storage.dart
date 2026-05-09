@@ -156,6 +156,49 @@ class LocalStorage {
     return favorites?[houseId.toString()] as bool?;
   }
 
+  static Set<int> getCachedFavorites() {
+    final favorites = _cacheBox?.get('favorites') as Map?;
+    if (favorites == null) return {};
+    return favorites.entries
+        .where((e) => e.value == true)
+        .map((e) => int.tryParse(e.key.toString()) ?? 0)
+        .where((id) => id > 0)
+        .toSet();
+  }
+
+  // ==================== 浏览历史 ====================
+
+  static Future<void> addBrowsingHistory(int houseId, String title, String? image) async {
+    final history = await getBrowsingHistory();
+    // 移除重复
+    history.removeWhere((item) => item['house_id'] == houseId);
+    // 添加到开头
+    history.insert(0, {
+      'house_id': houseId,
+      'title': title,
+      'image': image,
+      'viewed_at': DateTime.now().toIso8601String(),
+    });
+    // 只保留最近50条
+    if (history.length > 50) {
+      history.removeRange(50, history.length);
+    }
+    await _prefs?.setString(StorageKeys.browsingHistory, jsonEncode(history));
+  }
+
+  static Future<List<Map<String, dynamic>>> getBrowsingHistory() async {
+    final json = _prefs?.getString(StorageKeys.browsingHistory);
+    if (json != null) {
+      final list = jsonDecode(json) as List;
+      return list.cast<Map<String, dynamic>>();
+    }
+    return [];
+  }
+
+  static Future<void> clearBrowsingHistory() async {
+    await _prefs?.remove(StorageKeys.browsingHistory);
+  }
+
   // ==================== 通用缓存 ====================
 
   static Future<void> setCache(String key, dynamic value) async {

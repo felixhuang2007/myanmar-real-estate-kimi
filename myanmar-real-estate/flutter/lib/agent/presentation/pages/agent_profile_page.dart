@@ -1,18 +1,131 @@
 /**
  * B端 - 经纪人个人中心页
  */
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/api/dio_client.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../l10n/gen/app_localizations.dart';
 
-class AgentProfilePage extends ConsumerWidget {
+class AgentProfilePage extends ConsumerStatefulWidget {
   const AgentProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AgentProfilePage> createState() => _AgentProfilePageState();
+}
+
+class _AgentProfilePageState extends ConsumerState<AgentProfilePage> {
+  bool _isLoading = true;
+  String? _error;
+
+  // 统计数据
+  int _monthlyIncome = 0; // 本月收入（缅币）
+  int _monthlyDeals = 0; // 本月成交
+  int _monthlyViewings = 0; // 本月带看
+  int _myHouses = 0; // 我的房源
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final now = DateTime.now();
+      final startOfMonth = DateTime(now.year, now.month, 1);
+      final startDateStr = _formatDate(startOfMonth);
+      final endDateStr = _formatDate(now);
+
+      final dio = DioClient.instance;
+
+      // 并行发起4个请求
+      final results = await Future.wait([
+        // 1. 本月收入
+        dio.get('/acn/commission/statistics'),
+        // 2. 本月成交
+        dio.get('/acn/transactions', queryParameters: {
+          'status': 'completed',
+          'startDate': startDateStr,
+          'endDate': endDateStr,
+          'page': 1,
+          'pageSize': 1,
+        }),
+        // 3. 本月带看
+        dio.get('/appointments', queryParameters: {
+          'role': 'agent',
+          'status': 'completed',
+          'startDate': startDateStr,
+          'endDate': endDateStr,
+          'page': 1,
+          'pageSize': 1,
+        }),
+        // 4. 我的房源
+        dio.get('/houses/my', queryParameters: {
+          'page': 1,
+          'page_size': 1,
+        }),
+      ]);
+
+      // 解析结果
+      final commissionData =
+          (results[0].data as Map<String, dynamic>?)?['data']
+              as Map<String, dynamic>?;
+      final dealsData =
+          (results[1].data as Map<String, dynamic>?)?['data']
+              as Map<String, dynamic>?;
+      final viewingsData =
+          (results[2].data as Map<String, dynamic>?)?['data']
+              as Map<String, dynamic>?;
+      final housesData =
+          (results[3].data as Map<String, dynamic>?)?['data']
+              as Map<String, dynamic>?;
+
+      setState(() {
+        _monthlyIncome = _toInt(commissionData?['this_month']);
+        _monthlyDeals = _toInt(dealsData?['pagination']?['total']);
+        _monthlyViewings = _toInt(viewingsData?['pagination']?['total']);
+        _myHouses = _toInt(housesData?['pagination']?['total']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  int _toInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  String _formatIncome(int amount) {
+    if (amount >= 10000) {
+      final wan = amount / 10000;
+      return '${wan.toStringAsFixed(wan == wan.toInt() ? 0 : 1)}万';
+    }
+    return amount.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -21,17 +134,17 @@ class AgentProfilePage extends ConsumerWidget {
           SliverToBoxAdapter(
             child: _buildHeader(context),
           ),
-          
+
           // 数据统计
           SliverToBoxAdapter(
             child: _buildStats(context),
           ),
-          
+
           // 功能列表
           SliverToBoxAdapter(
             child: _buildMenuSection(context),
           ),
-          
+
           // 底部留白
           const SliverToBoxAdapter(
             child: SizedBox(height: 32),
@@ -62,16 +175,22 @@ class AgentProfilePage extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/agent/settings');
+                },
                 icon: const Icon(Icons.settings, color: AppColors.white),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Notifications coming soon')),
+                  );
+                },
                 icon: const Icon(Icons.notifications, color: AppColors.white),
               ),
             ],
           ),
-          
+
           // 用户信息
           Row(
             children: [
@@ -96,7 +215,8 @@ class AgentProfilePage extends ConsumerWidget {
                     bottom: 0,
                     right: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: AppColors.gold,
                         borderRadius: BorderRadius.circular(10),
@@ -115,7 +235,7 @@ class AgentProfilePage extends ConsumerWidget {
                 ],
               ),
               const SizedBox(width: 16),
-              
+
               // 信息
               Expanded(
                 child: Column(
@@ -123,7 +243,10 @@ class AgentProfilePage extends ConsumerWidget {
                   children: [
                     Text(
                       '张经纪',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -159,10 +282,12 @@ class AgentProfilePage extends ConsumerWidget {
                   ],
                 ),
               ),
-              
+
               // 编辑按钮
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/agent/edit-profile');
+                },
                 icon: Icon(Icons.edit, color: AppColors.white.withOpacity(0.8)),
               ),
             ],
@@ -175,10 +300,26 @@ class AgentProfilePage extends ConsumerWidget {
   /// 统计数据
   Widget _buildStats(BuildContext context) {
     final stats = [
-      {'value': '1,280万', 'label': '本月收入'},
-      {'value': '3', 'label': '本月成交'},
-      {'value': '5', 'label': '本月带看'},
-      {'value': '156', 'label': '我的房源'},
+      {
+        'value': _formatIncome(_monthlyIncome),
+        'label': '本月收入',
+        'route': '/agent/performance'
+      },
+      {
+        'value': _monthlyDeals.toString(),
+        'label': '本月成交',
+        'route': '/agent/performance'
+      },
+      {
+        'value': _monthlyViewings.toString(),
+        'label': '本月带看',
+        'route': '/agent/schedule'
+      },
+      {
+        'value': _myHouses.toString(),
+        'label': '我的房源',
+        'route': '/agent/houses'
+      },
     ];
 
     return Container(
@@ -195,31 +336,86 @@ class AgentProfilePage extends ConsumerWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: stats.map((stat) {
-          return GestureDetector(
-            onTap: () {},
-            child: Column(
-              children: [
-                Text(
-                  stat['value']!,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary700,
-                      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: stats.map((stat) {
+              return GestureDetector(
+                onTap: () {
+                  final route = stat['route'] as String?;
+                  if (route != null) {
+                    context.push(route);
+                  }
+                },
+                child: Column(
+                  children: [
+                    _isLoading
+                        ? SizedBox(
+                            width: 40,
+                            height: 20,
+                            child: LinearProgressIndicator(
+                              backgroundColor: AppColors.gray200,
+                              valueColor: AlwaysStoppedAnimation(
+                                  AppColors.primary700),
+                            ),
+                          )
+                        : Text(
+                            stat['value']!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary700,
+                                ),
+                          ),
+                    const SizedBox(height: 4),
+                    Text(
+                      stat['label']!,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.gray600,
+                          ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  stat['label']!,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.gray600,
+              );
+            }).toList(),
+          ),
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12, left: 16, right: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline,
+                      size: 14, color: AppColors.red500),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      '数据加载失败',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.red500,
                       ),
-                ),
-              ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _loadStats,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      '重试',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          );
-        }).toList(),
+        ],
       ),
     );
   }
@@ -235,7 +431,9 @@ class AgentProfilePage extends ConsumerWidget {
               icon: Icons.account_balance_wallet,
               title: '我的钱包',
               subtitle: '可提现: 500万缅币',
-              onTap: () {},
+              onTap: () {
+                context.push('/agent/wallet');
+              },
             ),
             _MenuItem(
               icon: Icons.assessment,
@@ -256,23 +454,28 @@ class AgentProfilePage extends ConsumerWidget {
               icon: Icons.workspace_premium,
               title: '等级权益',
               subtitle: '金牌经纪人',
-              onTap: () {},
+              onTap: () {
+                context.push('/agent/level');
+              },
             ),
           ],
         ),
-        
         _buildMenuGroup(
           context,
           items: [
             _MenuItem(
               icon: Icons.people,
               title: '我的团队',
-              onTap: () {},
+              onTap: () {
+                context.push('/agent/team');
+              },
             ),
             _MenuItem(
               icon: Icons.school,
               title: '培训学习',
-              onTap: () {},
+              onTap: () {
+                context.push('/agent/training');
+              },
             ),
             _MenuItem(
               icon: Icons.card_giftcard,
@@ -283,28 +486,33 @@ class AgentProfilePage extends ConsumerWidget {
             ),
           ],
         ),
-        
         _buildMenuGroup(
           context,
           items: [
             _MenuItem(
               icon: Icons.help_outline,
               title: '帮助中心',
-              onTap: () {},
+              onTap: () {
+                context.push('/agent/help-support');
+              },
             ),
             _MenuItem(
               icon: Icons.headset_mic,
               title: '联系客服',
-              onTap: () {},
+              onTap: () {
+                context.push('/agent/customer-service');
+              },
             ),
             _MenuItem(
               icon: Icons.info_outline,
               title: '关于我们',
-              onTap: () {},
+              onTap: () {
+                context.push('/agent/about-us');
+              },
             ),
           ],
         ),
-        
+
         // 退出登录
         Padding(
           padding: const EdgeInsets.all(16),
@@ -327,7 +535,8 @@ class AgentProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuGroup(BuildContext context, {required List<_MenuItem> items}) {
+  Widget _buildMenuGroup(BuildContext context,
+      {required List<_MenuItem> items}) {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       decoration: BoxDecoration(
@@ -346,10 +555,12 @@ class AgentProfilePage extends ConsumerWidget {
                 subtitle: item.subtitle != null
                     ? Text(
                         item.subtitle!,
-                        style: TextStyle(fontSize: 12, color: AppColors.gray500),
+                        style:
+                            TextStyle(fontSize: 12, color: AppColors.gray500),
                       )
                     : null,
-                trailing: const Icon(Icons.chevron_right, color: AppColors.gray400),
+                trailing:
+                    const Icon(Icons.chevron_right, color: AppColors.gray400),
                 onTap: item.onTap,
               ),
               if (index < items.length - 1)

@@ -111,10 +111,29 @@
   "roleAccompanier": "Showing Agent",
   "roleCloser": "Closer",
 
+  "loginSubtitle": "Login with your phone number",
+  "agreeToTerms": "By logging in, you agree to",
+  "andConnector": "and",
   "selectLanguage": "Select Language",
   "selectLanguageHint": "Choose your preferred language",
   "langMyanmar": "Myanmar (မြန်မာ)",
   "langEnglish": "English",
   "langChinese": "中文",
-  "continueBtn": "Continue"
+  "continueBtn": "Continue",
+
+  "verified": "Verified",
+  "guestUser": "Guest",
+  "searchHistory": "Search History",
+  "clear": "Clear",
+  "hotSearch": "Hot Search",
+  "browsingHistory": "Browsing History",
+  "myAppointments": "My Appointments",
+  "myListings": "My Listings",
+  "buyingGuide": "Buying Guide",
+  "helpAndSupport": "Help & Support",
+  "aboutUs": "About Us",
+  "userAgreement": "User Agreement",
+  "logoutConfirm": "Are you sure you want to logout?",
+  "views": "Views",
+  "appointments": "Appointments"
 }

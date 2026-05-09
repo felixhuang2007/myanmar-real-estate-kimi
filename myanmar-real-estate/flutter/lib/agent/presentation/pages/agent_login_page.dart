@@ -22,6 +22,7 @@ class AgentLoginPage extends ConsumerStatefulWidget {
 class _AgentLoginPageState extends ConsumerState<AgentLoginPage> {
   final _phoneController = TextEditingController();
   final _codeController = TextEditingController();
+  final _codeFocusNode = FocusNode();
   bool _isCodeSent = false;
   int _countdown = 0;
 
@@ -29,6 +30,7 @@ class _AgentLoginPageState extends ConsumerState<AgentLoginPage> {
   void dispose() {
     _phoneController.dispose();
     _codeController.dispose();
+    _codeFocusNode.dispose();
     super.dispose();
   }
 
@@ -47,6 +49,9 @@ class _AgentLoginPageState extends ConsumerState<AgentLoginPage> {
       });
       _startCountdown();
       ToastUtil.showSuccess(AppLocalizations.of(context).sendCode);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _codeFocusNode.requestFocus();
+      });
     } catch (e) {
       ToastUtil.showError(e.toString());
     }
@@ -157,6 +162,7 @@ class _AgentLoginPageState extends ConsumerState<AgentLoginPage> {
               if (_isCodeSent) ...[
                 Pinput(
                   controller: _codeController,
+                  focusNode: _codeFocusNode,
                   length: 6,
                   defaultPinTheme: PinTheme(
                     width: 48,

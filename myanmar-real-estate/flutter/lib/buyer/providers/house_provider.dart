@@ -1,11 +1,13 @@
 /**
  * 房源状态管理
  */
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api/dio_client.dart';
 import '../../core/api/house_api.dart';
 import '../../core/models/house.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/storage/local_storage.dart';
 
 /// House API Provider
 final houseApiProvider = Provider<HouseApi>((ref) {
@@ -14,27 +16,45 @@ final houseApiProvider = Provider<HouseApi>((ref) {
 
 /// 推荐房源Provider
 final recommendationsProvider = FutureProvider.autoDispose<List<House>>((ref) async {
-  final houseApi = ref.watch(houseApiProvider);
-  final response = await houseApi.getRecommendations({
-    'page': 1,
-    'page_size': 10,
-  });
-  
-  if (response.isSuccess && response.data != null) {
-    return response.data!.list;
+  try {
+    final houseApi = ref.watch(houseApiProvider);
+    final response = await houseApi.getRecommendations({
+      'page': 1,
+      'page_size': 10,
+    });
+
+    debugPrint('[recommendationsProvider] response.code=${response.code}, isSuccess=${response.isSuccess}, data=${response.data}');
+
+    if (response.isSuccess && response.data != null) {
+      debugPrint('[recommendationsProvider] list length=${response.data!.list.length}');
+      return response.data!.list;
+    }
+    throw Exception('API error: ${response.message} (code: ${response.code})');
+  } catch (e, stackTrace) {
+    debugPrint('[recommendationsProvider] ERROR: $e');
+    debugPrint('[recommendationsProvider] STACK: $stackTrace');
+    rethrow;
   }
-  throw Exception(response.message);
 });
 
 /// 房源详情Provider
 final houseDetailProvider = FutureProvider.family.autoDispose<House, int>((ref, houseId) async {
-  final houseApi = ref.watch(houseApiProvider);
-  final response = await houseApi.getHouseDetail(houseId);
-  
-  if (response.isSuccess && response.data != null) {
-    return response.data!;
+  try {
+    final houseApi = ref.watch(houseApiProvider);
+    final response = await houseApi.getHouseDetail(houseId);
+
+    debugPrint('[houseDetailProvider] houseId=$houseId, code=${response.code}, isSuccess=${response.isSuccess}');
+
+    if (response.isSuccess && response.data != null) {
+      debugPrint('[houseDetailProvider] house=${response.data!.title}, images=${response.data!.images.length}');
+      return response.data!;
+    }
+    throw Exception('API error: ${response.message} (code: ${response.code})');
+  } catch (e, stackTrace) {
+    debugPrint('[houseDetailProvider] ERROR: $e');
+    debugPrint('[houseDetailProvider] STACK: $stackTrace');
+    rethrow;
   }
-  throw Exception(response.message);
 });
 
 /// 房源搜索状态
@@ -192,26 +212,50 @@ class FavoriteState {
 class FavoriteNotifier extends StateNotifier<FavoriteState> {
   final HouseApi _houseApi;
 
-  FavoriteNotifier(this._houseApi) : super(FavoriteState());
+  FavoriteNotifier(this._houseApi) : super(FavoriteState()) {
+    _loadFavoritesFromBackend();
+  }
+
+  Future<void> _loadFavoritesFromBackend() async {
+    try {
+      final response = await _houseApi.getMyHouses({});
+      // getMyHouses calls /houses/my which is agent API; use direct Dio call instead
+      final dioResponse = await DioClient.instance.get('/users/me/favorites');
+      if (dioResponse.data != null && dioResponse.data['data'] != null) {
+        final data = dioResponse.data['data'];
+        final list = data['list'] as List<dynamic>? ?? [];
+        final ids = list.map((e) => e as int).toSet();
+        state = state.copyWith(favoriteIds: ids);
+        // Sync to local cache
+        for (final id in ids) {
+          await LocalStorage.cacheFavorite(id, true);
+        }
+      }
+    } catch (e) {
+      // Fallback to local cache
+      final cached = LocalStorage.getCachedFavorites();
+      state = state.copyWith(favoriteIds: cached);
+    }
+  }
 
   /// 切换收藏状态
   Future<bool> toggleFavorite(int houseId) async {
     try {
       final isFavorited = state.isFavorited(houseId);
-      
+
       if (isFavorited) {
         // 取消收藏
         await _houseApi.removeFavorite(houseId);
-        state = state.copyWith(
-          favoriteIds: {...state.favoriteIds}..remove(houseId),
-        );
+        final newIds = {...state.favoriteIds}..remove(houseId);
+        state = state.copyWith(favoriteIds: newIds);
+        await LocalStorage.cacheFavorite(houseId, false);
         return false;
       } else {
         // 添加收藏
         await _houseApi.addFavorite({'house_id': houseId});
-        state = state.copyWith(
-          favoriteIds: {...state.favoriteIds, houseId},
-        );
+        final newIds = {...state.favoriteIds, houseId};
+        state = state.copyWith(favoriteIds: newIds);
+        await LocalStorage.cacheFavorite(houseId, true);
         return true;
       }
     } catch (e) {
@@ -227,10 +271,17 @@ class FavoriteNotifier extends StateNotifier<FavoriteState> {
         state = state.copyWith(
           favoriteIds: {...state.favoriteIds, houseId},
         );
+        await LocalStorage.cacheFavorite(houseId, true);
       }
     } catch (e) {
       // 忽略错误
     }
+  }
+
+  /// 从本地缓存加载所有收藏
+  void loadFromCache() {
+    final cached = LocalStorage.getCachedFavorites();
+    state = state.copyWith(favoriteIds: cached);
   }
 }
 

@@ -299,6 +299,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get roleCloser => '成交人';
 
   @override
+  String get loginSubtitle => '请使用手机号登录';
+
+  @override
+  String get agreeToTerms => '登录即表示您同意';
+
+  @override
+  String get andConnector => '和';
+
+  @override
   String get selectLanguage => '选择语言';
 
   @override
@@ -315,4 +324,49 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get continueBtn => '继续';
+
+  @override
+  String get verified => '已认证';
+
+  @override
+  String get guestUser => '游客用户';
+
+  @override
+  String get searchHistory => '搜索历史';
+
+  @override
+  String get clear => '清除';
+
+  @override
+  String get hotSearch => '热门搜索';
+
+  @override
+  String get browsingHistory => '浏览历史';
+
+  @override
+  String get myAppointments => '我的预约';
+
+  @override
+  String get myListings => '我的发布';
+
+  @override
+  String get buyingGuide => '购房指南';
+
+  @override
+  String get helpAndSupport => '帮助与客服';
+
+  @override
+  String get aboutUs => '关于我们';
+
+  @override
+  String get userAgreement => '用户协议';
+
+  @override
+  String get logoutConfirm => '确定要退出登录吗？';
+
+  @override
+  String get views => '浏览';
+
+  @override
+  String get appointments => '预约';
 }

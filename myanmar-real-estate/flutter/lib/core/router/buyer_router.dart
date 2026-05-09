@@ -16,9 +16,16 @@ import '../../buyer/presentation/pages/search_result_page.dart';
 import '../../buyer/presentation/pages/map_search_page.dart';
 import '../../buyer/presentation/pages/house_detail_page.dart';
 import '../../buyer/presentation/pages/profile_page.dart';
+import '../../buyer/presentation/pages/favorites_page.dart';
 import '../../buyer/presentation/pages/chat_page.dart';
 import '../../buyer/presentation/pages/chat_list_page.dart';
 import '../../buyer/presentation/pages/mortgage_calc_page.dart';
+import '../../buyer/presentation/pages/settings_page.dart';
+import '../../buyer/presentation/pages/browsing_history_page.dart';
+import '../../buyer/presentation/pages/my_appointments_page.dart';
+import '../../buyer/presentation/pages/static_content_page.dart';
+import '../../buyer/presentation/pages/edit_profile_page.dart';
+import '../../buyer/presentation/pages/my_listings_page.dart';
 import '../../buyer/providers/auth_provider.dart';
 import '../../shared/pages/language_selection_page.dart';
 import '../storage/local_storage.dart';
@@ -132,14 +139,12 @@ final buyerRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
 
-          // 收藏 (占位)
+          // 收藏
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: '/buyer/favorites',
-                builder: (context, state) => const Scaffold(
-                  body: Center(child: Text('Favorites')),
-                ),
+                builder: (context, state) => const FavoritesPage(),
               ),
             ],
           ),
@@ -222,6 +227,96 @@ final buyerRouterProvider = Provider<GoRouter>((ref) {
             conversationId: conversationId,
           );
         },
+      ),
+
+      // 设置
+      GoRoute(
+        path: '/buyer/settings',
+        builder: (context, state) => const SettingsPage(),
+      ),
+
+      // 浏览历史
+      GoRoute(
+        path: '/buyer/browsing-history',
+        builder: (context, state) => const BrowsingHistoryPage(),
+      ),
+
+      // 我的预约
+      GoRoute(
+        path: '/buyer/my-appointments',
+        builder: (context, state) => const MyAppointmentsPage(),
+      ),
+
+      // 购房指南
+      GoRoute(
+        path: '/buyer/buying-guide',
+        builder: (context, state) {
+          final l = AppLocalizations.of(context);
+          return StaticContentPage(
+            title: l.buyingGuide,
+            contentType: 'buying-guide',
+          );
+        },
+      ),
+
+      // 帮助与客服
+      GoRoute(
+        path: '/buyer/help-support',
+        builder: (context, state) {
+          final l = AppLocalizations.of(context);
+          return StaticContentPage(
+            title: l.helpAndSupport,
+            contentType: 'help-support',
+          );
+        },
+      ),
+
+      // 关于我们
+      GoRoute(
+        path: '/buyer/about-us',
+        builder: (context, state) {
+          final l = AppLocalizations.of(context);
+          return StaticContentPage(
+            title: l.aboutUs,
+            contentType: 'about-us',
+          );
+        },
+      ),
+
+      // 用户协议
+      GoRoute(
+        path: '/buyer/terms',
+        builder: (context, state) {
+          final l = AppLocalizations.of(context);
+          return StaticContentPage(
+            title: l.userAgreement,
+            contentType: 'terms',
+          );
+        },
+      ),
+
+      // 隐私政策
+      GoRoute(
+        path: '/buyer/privacy',
+        builder: (context, state) {
+          final l = AppLocalizations.of(context);
+          return StaticContentPage(
+            title: l.privacyPolicy,
+            contentType: 'privacy',
+          );
+        },
+      ),
+
+      // 我的发布
+      GoRoute(
+        path: '/buyer/my-listings',
+        builder: (context, state) => const MyListingsPage(),
+      ),
+
+      // 编辑资料
+      GoRoute(
+        path: '/buyer/edit-profile',
+        builder: (context, state) => const EditProfilePage(),
       ),
     ],
   );

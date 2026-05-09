@@ -683,6 +683,24 @@ abstract class AppLocalizations {
   /// **'Closer'**
   String get roleCloser;
 
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Login with your phone number'**
+  String get loginSubtitle;
+
+  /// No description provided for @agreeToTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'By logging in, you agree to'**
+  String get agreeToTerms;
+
+  /// No description provided for @andConnector.
+  ///
+  /// In en, this message translates to:
+  /// **'and'**
+  String get andConnector;
+
   /// No description provided for @selectLanguage.
   ///
   /// In en, this message translates to:
@@ -718,6 +736,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue'**
   String get continueBtn;
+
+  /// No description provided for @verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get verified;
+
+  /// No description provided for @guestUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest'**
+  String get guestUser;
+
+  /// No description provided for @searchHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Search History'**
+  String get searchHistory;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @hotSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Search'**
+  String get hotSearch;
+
+  /// No description provided for @browsingHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Browsing History'**
+  String get browsingHistory;
+
+  /// No description provided for @myAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'My Appointments'**
+  String get myAppointments;
+
+  /// No description provided for @myListings.
+  ///
+  /// In en, this message translates to:
+  /// **'My Listings'**
+  String get myListings;
+
+  /// No description provided for @buyingGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Buying Guide'**
+  String get buyingGuide;
+
+  /// No description provided for @helpAndSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support'**
+  String get helpAndSupport;
+
+  /// No description provided for @aboutUs.
+  ///
+  /// In en, this message translates to:
+  /// **'About Us'**
+  String get aboutUs;
+
+  /// No description provided for @userAgreement.
+  ///
+  /// In en, this message translates to:
+  /// **'User Agreement'**
+  String get userAgreement;
+
+  /// No description provided for @logoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get logoutConfirm;
+
+  /// No description provided for @views.
+  ///
+  /// In en, this message translates to:
+  /// **'Views'**
+  String get views;
+
+  /// No description provided for @appointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointments'**
+  String get appointments;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

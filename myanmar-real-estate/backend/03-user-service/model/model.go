@@ -107,3 +107,29 @@ func (c *SMSVerificationCode) IsExpired() bool {
 func (c *SMSVerificationCode) IsUsed() bool {
 	return c.UsedAt != nil
 }
+
+// UserFavorite 用户收藏
+ type UserFavorite struct {
+	ID        int64     `gorm:"primaryKey" json:"id"`
+	UserID    int64     `gorm:"column:user_id;index" json:"user_id"`
+	HouseID   int64     `gorm:"column:house_id;index" json:"house_id"`
+	CreatedAt time.Time `gorm:"column:created_at" json:"created_at"`
+}
+
+func (UserFavorite) TableName() string {
+	return "user_favorites"
+}
+
+// UserBrowsingHistory 用户浏览历史
+ type UserBrowsingHistory struct {
+	ID           int64     `gorm:"primaryKey" json:"id"`
+	UserID       int64     `gorm:"column:user_id;index" json:"user_id"`
+	HouseID      int64     `gorm:"column:house_id;index" json:"house_id"`
+	ViewCount    int       `gorm:"column:view_count;default:1" json:"view_count"`
+	LastViewedAt time.Time `gorm:"column:last_viewed_at" json:"last_viewed_at"`
+	CreatedAt    time.Time `gorm:"column:created_at" json:"created_at"`
+}
+
+func (UserBrowsingHistory) TableName() string {
+	return "user_browsing_history"
+}

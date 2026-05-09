@@ -10,6 +10,7 @@ import '../../providers/house_provider.dart';
 import '../../../core/utils/app_utils.dart';
 import '../../../core/api/dio_client.dart';
 import '../../../core/api/user_api.dart';
+import '../../../core/storage/local_storage.dart';
 import '../../../l10n/gen/app_localizations.dart';
 
 class HouseDetailPage extends ConsumerStatefulWidget {
@@ -25,6 +26,7 @@ class _HouseDetailPageState extends ConsumerState<HouseDetailPage> {
   int _currentImageIndex = 0;
   bool _isFavorite = false;
   bool _favoriteLoading = false;
+  bool _historyRecorded = false;
 
   @override
   void initState() {
@@ -94,6 +96,18 @@ class _HouseDetailPageState extends ConsumerState<HouseDetailPage> {
   }
 
   Widget _buildContent(BuildContext context, House house) {
+    if (!_historyRecorded) {
+      _historyRecorded = true;
+      LocalStorage.addBrowsingHistory(
+        house.houseId,
+        house.title,
+        house.mainImage,
+      );
+      // 同步到后端
+      DioClient.instance.post('/users/me/browsing-history', data: {
+        'house_id': house.houseId,
+      }).catchError((_) => null);
+    }
     return CustomScrollView(
       slivers: [
         // 图片轮播 + 顶部导航
@@ -859,14 +873,6 @@ class _HouseDetailPageState extends ConsumerState<HouseDetailPage> {
       child: SafeArea(
         child: Row(
           children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.chat_bubble_outline),
-                label: Text(l.contactAgent),
-              ),
-            ),
-            const SizedBox(width: 12),
             Expanded(
               flex: 2,
               child: ElevatedButton.icon(

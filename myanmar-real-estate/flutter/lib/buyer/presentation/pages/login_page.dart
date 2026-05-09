@@ -2,6 +2,7 @@
  * C端 - 登录页 (手机号+验证码)
  */
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,20 +23,37 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _phoneController = TextEditingController();
   final _codeController = TextEditingController();
+  final _codeFocusNode = FocusNode();
   bool _isCodeSent = false;
   int _countdown = 0;
 
+  late final TapGestureRecognizer _termsRecognizer;
+  late final TapGestureRecognizer _privacyRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _termsRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push('/buyer/terms');
+    _privacyRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push('/buyer/privacy');
+  }
+
   @override
   void dispose() {
+    _termsRecognizer.dispose();
+    _privacyRecognizer.dispose();
     _phoneController.dispose();
     _codeController.dispose();
+    _codeFocusNode.dispose();
     super.dispose();
   }
 
   void _sendCode() async {
     final phone = _phoneController.text.trim();
+    final l = AppLocalizations.of(context);
     if (!ValidatorUtil.isValidPhone(phone)) {
-      ToastUtil.showError('请输入有效的手机号');
+      ToastUtil.showError(l?.invalidPhone ?? 'Invalid phone number');
       return;
     }
 
@@ -46,7 +64,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         _countdown = 60;
       });
       _startCountdown();
-      ToastUtil.showSuccess('验证码已发送');
+      ToastUtil.showSuccess(l?.sendCode ?? 'Code sent');
+      // 焦点移到验证码输入框
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _codeFocusNode.requestFocus();
+      });
     } catch (e) {
       ToastUtil.showError(e.toString());
     }
@@ -67,20 +89,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void _login() async {
     final phone = _phoneController.text.trim();
     final code = _codeController.text.trim();
+    final l = AppLocalizations.of(context);
 
     if (phone.isEmpty) {
-      ToastUtil.showError('请输入手机号');
+      ToastUtil.showError(l?.pleaseEnterPhone ?? 'Please enter phone number');
       return;
     }
     if (code.length != 6) {
-      ToastUtil.showError('请输入6位验证码');
+      ToastUtil.showError(l?.invalidCode ?? 'Invalid code');
       return;
     }
 
     try {
       await ref.read(authProvider.notifier).login(phone, code);
       if (mounted) {
-        ToastUtil.showSuccess('登录成功');
+        ToastUtil.showSuccess(l?.loginSuccess ?? 'Login successful');
         context.go(RouteNames.buyerHome);
       }
     } catch (e) {
@@ -90,7 +113,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l = Localizations.of<AppLocalizations>(context, AppLocalizations);
+    final l = AppLocalizations.of(context);
     final authState = ref.watch(authProvider);
 
     return Scaffold(
@@ -119,14 +142,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               const SizedBox(height: 32),
               // 标题
               Text(
-                '欢迎回来',
+                l?.welcome ?? 'Welcome',
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
               ),
               const SizedBox(height: 8),
               Text(
-                '请使用手机号登录',
+                l?.loginSubtitle ?? 'Login with your phone number',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppColors.gray600,
                     ),
@@ -156,6 +179,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               if (_isCodeSent) ...[
                 Pinput(
                   controller: _codeController,
+                  focusNode: _codeFocusNode,
                   length: 6,
                   defaultPinTheme: PinTheme(
                     width: 48,
@@ -185,7 +209,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: TextButton(
                     onPressed: _countdown > 0 ? null : _sendCode,
                     child: Text(
-                      _countdown > 0 ? '重新发送 ($_countdown s)' : (l?.resendCode ?? '重新发送'),
+                      _countdown > 0 ? '${l?.resendCode ?? 'Resend'} ($_countdown s)' : (l?.resendCode ?? 'Resend'),
                     ),
                   ),
                 ),
@@ -218,25 +242,27 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               Center(
                 child: Text.rich(
                   TextSpan(
-                    text: '登录即表示您同意',
+                    text: l?.agreeToTerms ?? 'By logging in, you agree to',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppColors.gray600,
                         ),
                     children: [
                       TextSpan(
-                        text: '《${l?.termsOfService ?? '服务条款'}》',
+                        text: ' ${l?.termsOfService ?? 'Terms of Service'} ',
                         style: const TextStyle(
                           color: AppColors.primary700,
                           fontWeight: FontWeight.w500,
                         ),
+                        recognizer: _termsRecognizer,
                       ),
-                      const TextSpan(text: '和'),
+                      TextSpan(text: l?.andConnector ?? 'and'),
                       TextSpan(
-                        text: '《${l?.privacyPolicy ?? '隐私政策'}》',
+                        text: ' ${l?.privacyPolicy ?? 'Privacy Policy'} ',
                         style: const TextStyle(
                           color: AppColors.primary700,
                           fontWeight: FontWeight.w500,
                         ),
+                        recognizer: _privacyRecognizer,
                       ),
                     ],
                   ),

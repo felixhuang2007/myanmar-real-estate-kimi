@@ -31,12 +31,12 @@ _$HouseImpl _$$HouseImplFromJson(Map<String, dynamic> json) => _$HouseImpl(
           ? null
           : HouseLocation.fromJson(json['location'] as Map<String, dynamic>),
       description: json['description'] as String?,
-      highlights: (json['highlights'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
-      facilities: (json['facilities'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
+      highlights: json['highlights'] is List
+          ? (json['highlights'] as List<dynamic>).map((e) => e as String).toList()
+          : null,
+      facilities: json['facilities'] is List
+          ? (json['facilities'] as List<dynamic>).map((e) => e as String).toList()
+          : null,
       property: json['property'] == null
           ? null
           : PropertyInfo.fromJson(json['property'] as Map<String, dynamic>),
@@ -195,16 +195,16 @@ Map<String, dynamic> _$$VerificationInfoImplToJson(
 
 _$HouseImageImpl _$$HouseImageImplFromJson(Map<String, dynamic> json) =>
     _$HouseImageImpl(
-      id: (json['id'] as num).toInt(),
-      url: json['url'] as String,
+      id: (json['image_id'] as num).toInt(),
+      url: json['image_url'] as String,
       type: json['type'] as String? ?? 'interior',
       isMain: json['is_main'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$HouseImageImplToJson(_$HouseImageImpl instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'url': instance.url,
+      'image_id': instance.id,
+      'image_url': instance.url,
       'type': instance.type,
       'is_main': instance.isMain,
     };

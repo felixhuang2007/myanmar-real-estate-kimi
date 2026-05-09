@@ -38,11 +38,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   void _search(String keyword) async {
     if (keyword.trim().isEmpty) return;
-    
+
     await LocalStorage.addSearchHistory(keyword);
-    
+
     if (mounted) {
-      context.push(RouteNames.houseList, extra: {'keywords': keyword});
+      context.push('/buyer/search-result?keyword=${Uri.encodeComponent(keyword)}');
     }
   }
 
@@ -113,14 +113,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '搜索历史',
+                      l.searchHistory,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
                     ),
                     TextButton(
                       onPressed: _clearHistory,
-                      child: const Text('清除'),
+                      child: Text(l.clear),
                     ),
                   ],
                 ),
@@ -149,7 +149,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '热门搜索',
+                    l.hotSearch,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
