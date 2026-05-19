@@ -218,13 +218,15 @@ class FavoriteNotifier extends StateNotifier<FavoriteState> {
 
   Future<void> _loadFavoritesFromBackend() async {
     try {
-      final response = await _houseApi.getMyHouses({});
-      // getMyHouses calls /houses/my which is agent API; use direct Dio call instead
       final dioResponse = await DioClient.instance.get('/users/me/favorites');
       if (dioResponse.data != null && dioResponse.data['data'] != null) {
-        final data = dioResponse.data['data'];
+        final data = dioResponse.data['data'] as Map<String, dynamic>;
         final list = data['list'] as List<dynamic>? ?? [];
-        final ids = list.map((e) => e as int).toSet();
+        final ids = list.map((e) {
+          if (e is int) return e;
+          if (e is double) return e.toInt();
+          return int.tryParse(e.toString()) ?? 0;
+        }).where((id) => id > 0).toSet();
         state = state.copyWith(favoriteIds: ids);
         // Sync to local cache
         for (final id in ids) {
@@ -232,6 +234,7 @@ class FavoriteNotifier extends StateNotifier<FavoriteState> {
         }
       }
     } catch (e) {
+      debugPrint('[_loadFavoritesFromBackend] error: $e');
       // Fallback to local cache
       final cached = LocalStorage.getCachedFavorites();
       state = state.copyWith(favoriteIds: cached);

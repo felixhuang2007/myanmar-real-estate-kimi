@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	userModel "myanmar-property/backend/03-user-service/model"
@@ -490,10 +491,16 @@ func (c *UserController) GetFavorites(ctx *gin.Context) {
 
 	if c.db != nil {
 		c.db.WithContext(ctx).Model(&userModel.UserFavorite{}).Where("user_id = ?", userID).Count(&total)
-		c.db.WithContext(ctx).Where("user_id = ?", userID).
+		result := c.db.WithContext(ctx).Where("user_id = ?", userID).
 			Order("created_at DESC").
 			Offset((page - 1) * pageSize).Limit(pageSize).
 			Find(&favorites)
+		common.Info("GetFavorites", zap.String("user_id", fmt.Sprintf("%d", userID)),
+			zap.String("total", fmt.Sprintf("%d", total)),
+			zap.String("favorites_count", fmt.Sprintf("%d", len(favorites))),
+			zap.String("db_error", fmt.Sprintf("%v", result.Error)))
+	} else {
+		common.Warn("GetFavorites: db is nil", zap.String("user_id", fmt.Sprintf("%d", userID)))
 	}
 
 	houseIDs := make([]int64, 0, len(favorites))
